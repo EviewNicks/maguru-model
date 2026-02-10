@@ -1,0 +1,58 @@
+# ========================================
+# Maguru - AI Coding Learning Platform
+# Conda Environment Configuration
+# ========================================
+#
+# This file defines the conda environment for Maguru.
+# Use this file to create a reproducible environment.
+#
+# Usage:
+#   conda env create -f environment.yml
+#   conda activate maguru
+#
+# To export existing environment:
+#   conda env export > environment.yml
+
+name: maguru
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # ========================================
+  # Python Version
+  # ========================================
+  - python=3.10
+
+  # ========================================
+  # Core Framework (available in conda)
+  # ========================================
+  - streamlit>=1.35.0
+  - pyyaml>=6.0.1
+  - requests>=2.31.0
+  - python-dotenv>=1.0.0
+
+  # ========================================
+  # Pip Dependencies
+  # (LangChain packages not available in conda)
+  # ========================================
+  - pip>=23.0
+  - pip:
+      # AI Framework
+      - langchain>=0.2.0,<0.4.0
+      - langchain-openai>=0.1.0,<0.3.0
+      - langgraph>=0.1.0,<0.3.0
+
+      # OpenAI
+      - openai>=1.35.0,<2.0.0
+
+  # ========================================
+  # Optional Development Dependencies
+  # (Uncomment if needed)
+  # ========================================
+  # - pytest>=7.4.0
+  # - pytest-cov>=4.1.0
+  # - black>=23.7.0
+  # - flake8>=6.1.0
+  # - mypy>=1.5.0
