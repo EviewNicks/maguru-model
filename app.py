@@ -11,6 +11,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Import UI pages
+from ui.pages import home, learn, quiz, progress
+from utils.session_manager import init_session
+
 # Page configuration
 st.set_page_config(
     page_title="Maguru - Belajar Coding dengan AI",
@@ -35,93 +39,92 @@ st.markdown("""
         border-radius: 0.5rem;
         margin: 1rem 0;
     }
+    .stProgress > div > div > div > div {
+        background-color: #FF6B6B;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 
 def main():
-    """Main application function."""
+    """Main application function with multi-page routing."""
 
-    # Header
-    st.markdown('<h1 class="main-header">🐍 Maguru</h1>', unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 1.2rem;'>Belajar Coding dengan AI sebagai Co-Teacher</p>",
-                unsafe_allow_html=True)
+    # Initialize session
+    if not st.session_state.get("initialized"):
+        init_session()
 
-    # Introduction
-    st.markdown("---")
+    # Initialize current page if not set
+    if "current_page" not in st.session_state:
+        st.session_state.current_page = "Home"
 
-    col1, col2, col3 = st.columns(3)
+    # Sidebar navigation
+    with st.sidebar:
+        st.title("🐍 Maguru")
 
-    with col1:
+        st.markdown("---")
+
+        # Student info
+        if st.session_state.get("student_name"):
+            st.markdown(f"👤 **{st.session_state.student_name}**")
+        else:
+            st.markdown("👤 **Tamu**")
+
+        st.markdown("---")
+
+        # Navigation
+        st.markdown("### Navigasi")
+
+        page = st.radio(
+            "",
+            ["Home", "Learn", "Quiz", "Progress"],
+            index=["Home", "Learn", "Quiz", "Progress"].index(
+                st.session_state.get("current_page", "Home")
+            ),
+            label_visibility="collapsed"
+        )
+
+        # Update current page
+        if page != st.session_state.current_page:
+            st.session_state.current_page = page
+            st.rerun()
+
+        st.markdown("---")
+
+        # Current course info
+        if st.session_state.get("current_course"):
+            from utils.content_loader import load_course_metadata
+            metadata = load_course_metadata(st.session_state.current_course)
+            if metadata:
+                st.markdown(f"**Kursus:** {metadata.get('title', 'N/A')}")
+
+            if st.session_state.get("current_module"):
+                st.markdown(f"**Modul:** {st.session_state.current_module}")
+
+            if st.session_state.get("current_session"):
+                st.markdown(f"**Sesi:** {st.session_state.current_session}")
+
+        st.markdown("---")
+
+        # Footer
         st.markdown("""
-        <div class='info-box'>
-        <h3>🎯 Interaktif</h3>
-        <p>Belajar dengan AI chatbot yang siap membantu menjawab pertanyaan Anda.</p>
+        <div style='text-align: center; color: #666; font-size: 0.8rem;'>
+        Made with ❤️ by Maguru Team
         </div>
         """, unsafe_allow_html=True)
 
-    with col2:
-        st.markdown("""
-        <div class='info-box'>
-        <h3>📚 Personal</h3>
-        <p>Learning path yang disesuaikan dengan kemampuan dan kebutuhan Anda.</p>
-        </div>
-        """, unsafe_allow_html=True)
+    # Page routing
+    current_page = st.session_state.get("current_page", "Home")
 
-    with col3:
-        st.markdown("""
-        <div class='info-box'>
-        <h3>🚀 Adaptif</h3>
-        <p>Sistem review otomatis jika mengalami kesulitan pada materi.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Coming Soon Section
-    st.markdown("---")
-    st.subheader("🚀 Coming Soon")
-
-    st.markdown("""
-    Maguru sedang dalam pengembangan. Fitur yang akan tersedia:
-
-    - **Interactive Learning Flow** - Belajar teori dengan bimbingan AI
-    - **Code Explanation** - Penjelasan kode yang mudah dipahami
-    - **Hint System** - Bantuan bertahap saat stuck
-    - **Quiz & Challenges** - Uji pemahaman dengan feedback detail
-    - **Progress Tracking** - Pantau perkembangan belajar Anda
-    - **Adaptive Review** - Review otomatis jika gagal kuis
-    """)
-
-    # Tech Stack
-    with st.expander("🔧 Tech Stack"):
-        st.markdown("""
-        - **UI**: Streamlit
-        - **AI Framework**: LangChain (LCEL + LangGraph)
-        - **LLM**: GPT-3.5-turbo
-        - **Language**: Python
-        """)
-
-    # Documentation
-    with st.expander("📚 Documentation"):
-        st.markdown("""
-        Lihat dokumentasi lengkap di repository:
-
-        - [Project Specification](docs/new-project.md) - Detail fitur MVP
-        - [Original Concept](docs/project.md) - Konsep awal proyek
-        - [Contributing Guide](CONTRIBUTING.md) - Cara berkontribusi
-        """)
-
-    # Status
-    st.markdown("---")
-    st.info("🚧 **Status**: Project dalam tahap pengembangan. Ikuti perkembangannya di repository ini!")
-
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-    <div style='text-align: center; color: #666;'>
-    <p>Made with ❤️ by Maguru Team</p>
-    <p>© 2025 Maguru. All rights reserved.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    if current_page == "Home":
+        home.show()
+    elif current_page == "Learn":
+        learn.show()
+    elif current_page == "Quiz":
+        quiz.show()
+    elif current_page == "Progress":
+        progress.show()
+    else:
+        home.show()
 
 
 if __name__ == "__main__":
