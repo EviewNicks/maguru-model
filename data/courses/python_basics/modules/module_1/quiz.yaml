@@ -1,0 +1,15 @@
+id: quiz_module_1
+title: "Variables & Data Types Quiz"
+passing_score: 70
+time_limit_minutes: 10
+questions:
+  - id: q1
+    type: multiple_choice
+    question: "How do you create a variable in Python?"
+    options:
+      - "var name = 'value'"
+      - "name = 'value'"
+      - "let name = 'value'"
+    correct: 1
+    points: 10
+    explanation: "Python uses direct assignment without keywords like 'var' or 'let'."

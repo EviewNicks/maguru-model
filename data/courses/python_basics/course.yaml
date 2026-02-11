@@ -1,0 +1,12 @@
+id: python_basics
+title: "Python Basics for Beginners"
+description: "Learn fundamental Python programming concepts"
+difficulty: beginner
+duration_hours: 10
+prerequisites: []
+modules:
+  - module_1
+learning_objectives:
+  - "Understand Python variables and data types"
+  - "Master basic control flow"
+  - "Write simple Python programs"
