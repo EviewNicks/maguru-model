@@ -1,15 +1,116 @@
 id: quiz_module_1
-title: "Variables & Data Types Quiz"
+title: "Kuis: Variabel & Tipe Data"
 passing_score: 70
-time_limit_minutes: 10
+time_limit_minutes: 15
 questions:
+  # Session 1.1: Variables (20 points)
   - id: q1
     type: multiple_choice
-    question: "How do you create a variable in Python?"
+    question: "Bagaimana cara membuat variabel baru di Python?"
     options:
-      - "var name = 'value'"
-      - "name = 'value'"
-      - "let name = 'value'"
+      - "var nama = 'value'"
+      - "nama = 'value'"
+      - "let nama = 'value'"
+      - "variable nama = 'value'"
     correct: 1
     points: 10
-    explanation: "Python uses direct assignment without keywords like 'var' or 'let'."
+    explanation: "Python menggunakan penugasan langsung tanpa kata kunci."
+
+  - id: q2
+    type: multiple_choice
+    question: "Manakah penamaan variabel yang BENAR?"
+    options:
+      - "1nama"
+      - "nama-siswa"
+      - "nama_siswa"
+      - "class"
+    correct: 2
+    points: 10
+    explanation: "Gunakan snake_case (nama_siswa), hindari angka di awal dan kata kunci."
+
+  # Session 1.2: Data Types (35 points)
+  - id: q3
+    type: multiple_choice
+    question: "Apa output dari print(type(3.14))?"
+    options:
+      - "<class 'int'>"
+      - "<class 'float'>"
+      - "<class 'str'>"
+      - "<class 'number'>"
+    correct: 1
+    points: 10
+    explanation: "Angka dengan desimal (titik) di Python bertipe float."
+
+  - id: q4
+    type: code_completion
+    question: "Lengkapi kode untuk mengkonversi string '100' menjadi integer:"
+    template: "angka = ___('100')"
+    answer: "int"
+    points: 15
+    explanation: "Fungsi int() digunakan untuk mengkonversi string ke integer."
+
+  - id: q5
+    type: multiple_choice
+    question: "Apa hasil dari int(3.9)?"
+    options:
+      - "3.9"
+      - "3"
+      - "4"
+      - "Error"
+    correct: 1
+    points: 10
+    explanation: "int() membulatkan float ke bawah, bukan ke terdekat."
+
+  # Session 1.3: Strings (20 points)
+  - id: q6
+    type: code_completion
+    question: "Lengkapi kode untuk mengubah 'hello' menjadi 'HELLO':"
+    template: "print('hello'.___())"
+    answer: "upper"
+    points: 10
+    explanation: "Metode upper() mengubah semua karakter menjadi huruf kapital."
+
+  - id: q7
+    type: multiple_choice
+    question: "Apa output dari print('Python'[0])?"
+    options:
+      - "P"
+      - "y"
+      - "n"
+      - "Error"
+    correct: 0
+    points: 10
+    explanation: "Indexing dimulai dari 0, jadi [0] adalah karakter pertama."
+
+  # Session 1.4: I/O (25 points)
+  - id: q8
+    type: multiple_choice
+    question: "Apa tipe data yang SELALU dikembalikan oleh input()?"
+    options:
+      - "int"
+      - "float"
+      - "str"
+      - "Tergantung input user"
+    correct: 2
+    points: 10
+    explanation: "input() selalu mengembalikan string, bahkan jika user memasukkan angka."
+
+  - id: q9
+    type: code_completion
+    question: "Lengkapi kode untuk mencetak tanpa baris baru:"
+    template: "print('Loading', ___=' ')"
+    answer: "end"
+    points: 10
+    explanation: "Parameter end mengubah karakter akhir, defaultnya adalah \\n."
+
+  - id: q10
+    type: multiple_choice
+    question: "Apa fungsi dari character '\\n' dalam string?"
+    options:
+      - "Tab"
+      - "Newline (baris baru)"
+      - "Backslash"
+      - "Null"
+    correct: 1
+    points: 5
+    explanation: "\\n adalah escape character untuk newline (pindah baris)."

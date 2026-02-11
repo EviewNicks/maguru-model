@@ -1,8 +1,10 @@
 id: module_1
-title: "Variables & Data Types"
-description: "Learn about variables and basic data types in Python"
+title: "Variabel & Tipe Data"
+description: "Pelajari variabel, tipe data dasar, operasi string, dan input/output dalam Python"
 sessions:
   - session_1_1
   - session_1_2
+  - session_1_3
+  - session_1_4
 quiz: quiz_module_1
-estimated_duration_minutes: 30
+estimated_duration_minutes: 60

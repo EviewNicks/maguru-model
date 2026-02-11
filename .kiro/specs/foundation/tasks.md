@@ -46,15 +46,15 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Test content hierarchy integrity (Property 5)
     - _Requirements: 2.1, 2.3, 2.5, 8.5_
 
-- [ ] 4. Implement Quiz Validator
-  - [ ] 4.1 Create `utils/quiz_validator.py` with validation logic
+- [x] 4. Implement Quiz Validator
+  - [x] 4.1 Create `utils/quiz_validator.py` with validation logic
     - Implement `validate_answer()` - check multiple choice and code completion
     - Implement `calculate_score()` - sum points from correct answers
     - Implement `get_passed_status()` - check if score >= 70%
     - Implement `identify_weak_areas()` - map incorrect answers to topics
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ]* 4.2 Write unit tests for Quiz Validator
+  - [x]* 4.2 Write unit tests for Quiz Validator
     - Test score calculation accuracy (Property 2)
     - Test pass/fail threshold enforcement at 70% (Property 3)
     - Test multiple choice validation
