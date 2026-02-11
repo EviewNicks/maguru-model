@@ -30,8 +30,8 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Test quiz score storage
     - _Requirements: 1.1, 1.4, 1.3_
 
-- [] 3. Implement Content Loader
-  - [ ] 3.1 Create `utils/content_loader.py` with parsing functions
+- [x] 3. Implement Content Loader
+  - [x] 3.1 Create `utils/content_loader.py` with parsing functions
     - Implement `load_course_metadata()` - parse course.yaml
     - Implement `load_module_list()` - get modules from course
     - Implement `load_session_content()` - parse session markdown
@@ -40,7 +40,7 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Implement error handling for missing/malformed files (return None)
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-  - [ ]* 3.2 Write unit tests for Content Loader
+  - [x]* 3.2 Write unit tests for Content Loader
     - Test loading valid YAML/Markdown files
     - Test graceful error handling for missing files
     - Test content hierarchy integrity (Property 5)
