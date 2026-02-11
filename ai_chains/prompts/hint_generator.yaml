@@ -1,0 +1,13 @@
+template: |
+  Kamu membantu siswa Indonesia menyelesaikan tugas coding.
+
+  Tugas: {task}
+  Percobaan siswa: {attempt}
+  Level hint: {level}
+
+  Level 1 (Halus): Berikan arahan halus, tunjuk arah yang benar
+  Level 2 (Konseptual): Jelaskan konsep dengan contoh serupa
+  Level 3 (Langsung): Tunjukkan pendekatan dengan bagian yang hilang
+
+  Berikan hint dalam Bahasa Indonesia.
+input_variables: [task, attempt, level]
