@@ -57,60 +57,62 @@ def main():
     if "current_page" not in st.session_state:
         st.session_state.current_page = "Home"
 
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("🐍 Maguru")
+    # Sidebar navigation (hidden on Learn page for better chatbot visibility)
+    current_page = st.session_state.get("current_page", "Home")
 
-        st.markdown("---")
+    if current_page != "Learn":
+        with st.sidebar:
+            st.title("🐍 Maguru")
 
-        # Student info
-        if st.session_state.get("student_name"):
-            st.markdown(f"👤 **{st.session_state.student_name}**")
-        else:
-            st.markdown("👤 **Tamu**")
+            st.markdown("---")
 
-        st.markdown("---")
+            # Student info
+            if st.session_state.get("student_name"):
+                st.markdown(f"👤 **{st.session_state.student_name}**")
+            else:
+                st.markdown("👤 **Tamu**")
 
-        # Navigation
-        st.markdown("### Navigasi")
+            st.markdown("---")
 
-        page = st.radio(
-            "",
-            ["Home", "Learn", "Quiz", "Progress"],
-            index=["Home", "Learn", "Quiz", "Progress"].index(
-                st.session_state.get("current_page", "Home")
-            ),
-            label_visibility="collapsed"
-        )
+            # Navigation
+            st.markdown("### Navigasi")
 
-        # Update current page
-        if page != st.session_state.current_page:
-            st.session_state.current_page = page
-            st.rerun()
+            page = st.radio(
+                "Menu Utama:",
+                ["Home", "Learn", "Quiz", "Progress"],
+                index=["Home", "Learn", "Quiz", "Progress"].index(
+                    st.session_state.get("current_page", "Home")
+                )
+            )
 
-        st.markdown("---")
+            # Update current page
+            if page != st.session_state.current_page:
+                st.session_state.current_page = page
+                st.rerun()
 
-        # Current course info
-        if st.session_state.get("current_course"):
-            from utils.content_loader import load_course_metadata
-            metadata = load_course_metadata(st.session_state.current_course)
-            if metadata:
-                st.markdown(f"**Kursus:** {metadata.get('title', 'N/A')}")
+            st.markdown("---")
 
-            if st.session_state.get("current_module"):
-                st.markdown(f"**Modul:** {st.session_state.current_module}")
+            # Current course info
+            if st.session_state.get("current_course"):
+                from utils.content_loader import load_course_metadata
+                metadata = load_course_metadata(st.session_state.current_course)
+                if metadata:
+                    st.markdown(f"**Kursus:** {metadata.get('title', 'N/A')}")
 
-            if st.session_state.get("current_session"):
-                st.markdown(f"**Sesi:** {st.session_state.current_session}")
+                if st.session_state.get("current_module"):
+                    st.markdown(f"**Modul:** {st.session_state.current_module}")
 
-        st.markdown("---")
+                if st.session_state.get("current_session"):
+                    st.markdown(f"**Sesi:** {st.session_state.current_session}")
 
-        # Footer
-        st.markdown("""
-        <div style='text-align: center; color: #666; font-size: 0.8rem;'>
-        Made with ❤️ by Maguru Team
-        </div>
-        """, unsafe_allow_html=True)
+            st.markdown("---")
+
+            # Footer
+            st.markdown("""
+            <div style='text-align: center; color: #666; font-size: 0.8rem;'>
+            Made with ❤️ by Maguru Team
+            </div>
+            """, unsafe_allow_html=True)
 
     # Page routing
     current_page = st.session_state.get("current_page", "Home")

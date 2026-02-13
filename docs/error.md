@@ -1,20 +1,15 @@
-(base) PS D:\.maguru\maguru-model> claude mcp add --transport http atlassian https://mcp.atlassian.com/v1/mcp
-============================================================
-Bun Canary v1.3.9-canary.51 (d5628db2) Windows x64 (baseline)
-Windows v.win11_dt
-CPU: sse42 avx avx2
-Args: "C:\Users\MODERN 14\.local\bin\claude.exe" "mcp" "add" "--transport" "http" "atlassian" "https://mcp.atlassian.com/v1/mcp"
-Features: Bun.stderr(2) Bun.stdin(2) jsc standalone_executable 
-Builtins: "bun:main" "node:assert" "node:async_hooks" "node:buffer" "node:child_process" "node:constants" "node:crypto" "node:events" "node:fs" "node:fs/promises" "node:http" "node:https" "node:net" "node:os" "node:path" "node:path/win32" "node:process" "node:stream" "node:timers/promises" "node:tls" "node:tty" "node:url" "node:util" "node:zlib" "undici" "node:http2" 
-Elapsed: 829ms | User: 203ms | Sys: 109ms
-RSS: 0.32GB | Peak: 0.32GB | Commit: 0.42GB | Faults: 79419 | Machine: 16.87GB
+🤖 AI:
+Ya, siswa! Sangat baiknya kamu bertanya. Tipe Data (Type Data) dalam Python itu seperti tipe identitas dari nilai yang kita gunakan. Setiap nilai di Python punya "warna" atau "tanda" yang menjelaskan apa yang dimaksud dengan nilai tersebut. Ini sangat penting karena Python akan beroperasi berbeda-beda tergantung tipe data yang ada.
 
-panic(main thread): Illegal instruction at address 0x7FF7C64A11A0
-oh no: Bun has crashed. This indicates a bug in Bun, not your code.
+Mari kita lihat dari referensi materi sesi 1.2:
 
-To send a redacted crash report to Bun's team,
-please file a GitHub issue using the link below:
+Tipe Data Dasar yang Kita Pelajari
+Integer (int)
+Definisi: Bilangan bulat (tanpa koma).
+Contoh:
+umur = 25      # Umur berupa integer  
+jumlah_siswa = 30  # Jumlah siswa berupa integer
 
- https://bun.report/1.3.9/e_2d5628dbEmgggCg6ostC6yjntCwwuqtC8pgntCm5+mtCiixmuC434lvC02ulvCq7qlvC0holvCujvluC2usluC491luCkxr7mCgtt7mCqur39Bmqmy6Bwyiy6Bqnk06Bw2j06BA3u//Bhm3325B
-
-(base) PS D:\.maguru\maguru-model> 
+Cek Tipe:
+print(type(umur))
+   </div>

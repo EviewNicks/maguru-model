@@ -41,6 +41,12 @@ def show() -> None:
         from ui.components.chatbot import show as show_chatbot
         show_chatbot()
 
+    # Home button at bottom (less prominent exit)
+    st.markdown("---")
+    if st.button("🏠 Kembali ke Halaman Utama", use_container_width=True):
+        st.session_state.current_page = "Home"
+        st.rerun()
+
 
 def _get_course_title() -> str:
     """Get current course title.

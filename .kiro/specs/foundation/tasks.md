@@ -82,8 +82,8 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Include explanations for each question
     - _Requirements: 8.4, 11.5_
 
-- [ ] 6. Implement AI Chains (LangChain LCEL)
-  - [ ] 6.1 Create prompt templates
+- [x] 6. Implement AI Chains (LangChain LCEL)
+  - [x] 6.1 Create prompt templates
     - Create `langchain/prompts/explain_code.yaml`
     - Create `langchain/prompts/hint_generator.yaml`
     - Create `langchain/prompts/quiz_feedback.yaml`
@@ -92,57 +92,57 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - All prompts should specify Indonesian language output
     - _Requirements: 4.1, 5.1, 6.1, 7.1, 16.3_
 
-  - [ ] 6.2 Implement Code Explanation Chain
+  - [x] 6.2 Implement Code Explanation Chain
     - Create `langchain/chains/explain_code.py`
     - Implement `create_explain_chain()` - build LCEL chain
     - Implement `explain_code()` - execute explanation
     - Add basic error handling (return fallback message on API failure)
     - _Requirements: 4.1, 4.4_
 
-  - [ ] 6.3 Implement Hint Generator Chain
+  - [x] 6.3 Implement Hint Generator Chain
     - Create `langchain/chains/hint_generator.py`
     - Implement `create_hint_chain()` - build LCEL chain
     - Implement `generate_hint()` - generate hint for specific level (1-3)
     - Support 3 hint levels: gentle, conceptual, direct
     - _Requirements: 5.1, 5.2, 5.3_
 
-  - [ ] 6.4 Implement Quiz Feedback Chain
+  - [x] 6.4 Implement Quiz Feedback Chain
     - Create `langchain/chains/quiz_feedback.py`
     - Implement `create_feedback_chain()` - build LCEL chain
     - Implement `generate_feedback()` - generate feedback for answers
     - Support both correct and incorrect answer feedback
     - _Requirements: 6.1, 6.2, 6.5_
 
-  - [ ] 6.5 Implement Q&A Chatbot Chain
+  - [x] 6.5 Implement Q&A Chatbot Chain
     - Create `langchain/chains/qa_chatbot.py`
     - Implement `create_qa_chain()` - build LCEL chain
     - Implement `answer_question()` - answer with session context
     - Include chat history (last 10 messages) in context
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-  - [ ] 6.6 Implement AI Greeting Chain
+  - [x] 6.6 Implement AI Greeting Chain
     - Create `langchain/chains/ai_greeting.py`
     - Implement `create_greeting_chain()` - build LCEL chain
     - Implement `generate_greeting()` - personalized greeting
     - Include student name and course objectives in greeting
     - _Requirements: 16.1, 16.2, 16.3_
 
-- [ ] 7. Checkpoint - Test AI chains manually
+- [x] 7. Checkpoint - Test AI chains manually
   - Test each chain with sample inputs
   - Verify Indonesian language responses
   - Verify error handling for API failures
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Implement Home Page
-  - [ ] 8.1 Create `ui/pages/home.py`
+- [x] 8. Implement Home Page
+  - [x] 8.1 Create `ui/pages/home.py`
     - Implement `render_course_list()` - display available courses
     - Implement `render_course_card()` - show course details
     - Implement `handle_course_selection()` - process selection
     - Trigger AI greeting on first course selection (Property 8)
     - _Requirements: 9.1, 9.2, 16.1_
 
-- [ ] 9. Implement Learn Page
-  - [ ] 9.1 Create `ui/pages/learn.py`
+- [x] 9. Implement Learn Page
+  - [x] 9.1 Create `ui/pages/learn.py`
     - Implement `render_session_content()` - display theory and examples
     - Implement `render_practice_task()` - show practice exercises
     - Implement `render_navigation()` - previous/next/quiz buttons
@@ -150,8 +150,8 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Show progress indicator at top
     - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 10. Implement Chatbot Component
-  - [ ] 10.1 Create `ui/components/chatbot.py`
+- [x] 10. Implement Chatbot Component
+  - [x] 10.1 Create `ui/components/chatbot.py`
     - Implement `render_chat_interface()` - display chat UI
     - Implement `handle_user_message()` - process input
     - Implement `display_ai_response()` - show AI message
@@ -159,8 +159,8 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Include hint button for 3-level hints
     - _Requirements: 10.1, 10.2, 10.4, 10.5_
 
-- [ ] 11. Implement Quiz Page
-  - [ ] 11.1 Create `ui/pages/quiz.py`
+- [x] 11. Implement Quiz Page
+  - [x] 11.1 Create `ui/pages/quiz.py`
     - Implement `render_quiz_intro()` - show instructions and time limit
     - Implement `render_question()` - display question with options/input
     - Implement `handle_answer()` - process answer submission
@@ -170,8 +170,8 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Unlock next session when passed (Property 7)
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 15.1, 15.2, 15.3, 15.4, 15.5_
 
-- [ ] 12. Implement Progress Page
-  - [ ] 12.1 Create `ui/pages/progress.py`
+- [x] 12. Implement Progress Page
+  - [x] 12.1 Create `ui/pages/progress.py`
     - Implement `render_overall_progress()` - course completion percentage
     - Implement `render_module_progress()` - module-by-module status
     - Implement `render_quiz_history()` - past quiz scores with timestamps
@@ -179,8 +179,8 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     - Use visual indicators (progress bars, checklists)
     - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
 
-- [ ] 13. Implement main app routing
-  - [ ] 13.1 Update `app.py`
+- [x] 13. Implement main app routing
+  - [x] 13.1 Update `app.py`
     - Import all page modules
     - Implement multi-page navigation logic
     - Initialize session state on app start
@@ -194,7 +194,9 @@ This implementation plan breaks down the Maguru MVP Foundation into discrete, ac
     3. Chat context flow (10+ messages, verify limit)
     4. Navigation flow (home → learn → progress → quiz → home, verify state)
     5. AI greeting flow (first course selection with student name)
-  - Ensure all tests pass, ask the user if questions arise.
+  - See docs/test.md for detailed step-by-step testing guide
+  - Report bugs found during testing
+  - Ensure all tests pass before proceeding to Task 15
 
 - [ ] 15. Polish and bug fixes
   - Fix any bugs found during integration testing
