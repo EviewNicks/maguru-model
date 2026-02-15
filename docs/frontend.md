@@ -4,6 +4,7 @@
 
 **Project**: Maguru E-Learning Platform Frontend
 **Framework**: Next.js 15.5.3 (App Router) + React 19
+**Backend**: LangChain LCEL with LangServe API
 **Target Pages**: Course & Learn (Learning Mode) for Chatbot Integration
 **Analysis Date**: 2026-02-15
 
@@ -14,7 +15,7 @@
 ### 1.1 Tech Stack
 | Component | Technology | Version | Purpose |
 |-----------|------------|----------|---------|
-| **Framework** | Next.js | 15.5.3 | React framework with App Router |
+| **Frontend Framework** | Next.js | 15.5.3 | React framework with App Router |
 | **UI Library** | React | 19.1.1 | Core UI rendering |
 | **Styling** | TailwindCSS | 4.1.13 | Utility-first CSS |
 | **Components** | shadcn/ui | @radix-ui | UI component library |
@@ -22,12 +23,16 @@
 | **Markdown** | react-markdown | ^10.1.0 | Content rendering |
 | **State** | React Hooks | - | Client-side state |
 | **TypeScript** | TypeScript | ^5.9.2 | Type safety |
+| **Backend Framework** | Python | 3.x+ | AI Chain implementation |
+| **AI Framework** | LangChain | LCEL | LangChain Expression Language |
+| **AI API** | LangServe | latest | REST API for chains |
+| **LLM Provider** | OpenRouter/Z.AI | - | AI Model provider |
 
 ### 1.2 Project Structure
 ```
-maguru/
+maguru/                              # Next.js Frontend
 ├── app/                          # Next.js App Router
-│   ├── api/                     # API Routes
+│   ├── api/                     # API Routes (courses only)
 │   │   └── courses/
 │   │       ├── route.ts          # GET /api/courses (list)
 │   │       └── [slug]/
@@ -67,13 +72,70 @@ maguru/
 │
 └── docs/                       # Course content storage
     └── course/                # Markdown course files
+
+
+maguru-model/                         # Backend (Python)
+├── ai_chains/                   # AI Chain Implementations
+│   ├── chains/
+│   │   ├── qa_chatbot.py       # Q&A Chain
+│   │   ├── explain_code.py     # Code Explanation Chain
+│   │   ├── hint_generator.py   # Hint Generator Chain
+│   │   ├── quiz_feedback.py    # Quiz Feedback Chain
+│   │   └── ai_greeting.py      # Greeting Chain
+│   ├── prompts/                 # Prompt Templates (YAML)
+│   └── __init__.py              # LLM Configuration
+│
+├── app.py                       # Streamlit UI (legacy)
+├── server.py                    # LangServe Server (TO CREATE)
+├── requirements.txt              # Python Dependencies
+└── docs/
+    ├── frontend.md               # This file
+    └── plan.md                 # Implementation Plan
 ```
 
 ---
 
-## 2. Target Page Analysis: Learn Mode (`app/course/[slug]/learn/page.tsx`)
+## 2. Backend: LangServe Integration
 
-### 2.1 Page Structure
+### 2.1 LangServe Overview
+
+**LangServe** adalah tool resmi LangChain untuk men-deploy chain sebagai REST API.
+
+**Kelebihan LangServe**:
+- ✅ **Otomatis**: Tidak perlu tulis endpoint manual
+- ✅ **Type-Safe**: Input/output types otomatis dari signature fungsi
+- ✅ **Streaming Support**: Bisa stream response untuk UX yang lebih baik
+- ✅ **Documentation**: API docs otomatis di `/docs`
+- ✅ **Batch Support**: Bisa proses banyak request sekaligus
+
+### 2.2 AI Chains Available
+
+| Chain | File | Purpose | Input | Output |
+|--------|-------|---------|--------|--------|
+| **qa_chatbot** | `qa_chatbot.py` | Q&A with context | question, session_title, session_content, chat_history | str (jawaban) |
+| **explain_code** | `explain_code.py` | Code explanation | code_snippet | str (penjelasan) |
+| **hint_generator** | `hint_generator.py` | Progressive hints | task, attempt, level | str (hint) |
+| **quiz_feedback** | `quiz_feedback.py` | Quiz feedback | question, student_answer, correct_answer, is_correct | str (feedback) |
+| **ai_greeting** | `ai_greeting.py` | Personalized greeting | student_name, course_metadata | str (greeting) |
+
+### 2.3 LangServe Endpoint Structure
+
+Setelah LangServe berjalan, endpoints akan otomatis dibuat:
+
+| Chain | Endpoint URL | Method | Input Format | Output Format |
+|--------|--------------|---------|--------------|---------------|
+| qa_chatbot | `/chatbot/invoke` | POST | `{ "input": {...} }` | `{ "output": "..." }` |
+| qa_chatbot | `/chatbot/stream` | POST | `{ "input": {...} }` | SSE stream |
+| explain_code | `/explain-code/invoke` | POST | `{ "input": {...} }` | `{ "output": "..." }` |
+| hint_generator | `/hint/invoke` | POST | `{ "input": {...} }` | `{ "output": "..." }` |
+| quiz_feedback | `/quiz-feedback/invoke` | POST | `{ "input": {...} }` | `{ "output": "..." }` |
+
+---
+
+## 3. Target Page Analysis: Learn Mode (`app/course/[slug]/learn/page.tsx`)
+
+### 3.1 Page Structure
+
 The Learning Mode page is a client-side component (`'use client'`) designed for immersive learning experience.
 
 **Key Layout**:
@@ -89,14 +151,14 @@ The Learning Mode page is a client-side component (`'use client'`) designed for 
 │  │  Course  │  │      Content Renderer               │  │
 │  │ Timeline │  │      (Markdown Content)            │  │
 │  │          │  │                                     │  │
-│  │          │  │                                     │  │
+│  │          │  │      [CHATBOT FAB]               │  │
 │  │          │  ├─────────────────────────────────────┤  │
 │  │          │  │      Navigation Controls           │  │
 │  └──────────┘  └─────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Core Components Used
+### 3.2 Core Components Used
 
 | Component | Purpose | Integration Point for Chatbot |
 |-----------|---------|------------------------------|
@@ -105,7 +167,7 @@ The Learning Mode page is a client-side component (`'use client'`) designed for 
 | `Progress` | Progress indicator | Can show chatbot-assisted progress |
 | `Button` | Navigation controls | **Chatbot toggle button** |
 
-### 2.3 State Management
+### 3.3 State Management
 
 The page uses `useCourse` hook which provides:
 
@@ -135,7 +197,7 @@ interface UseCourseReturn {
 }
 ```
 
-### 2.4 Content Loading Flow
+### 3.4 Content Loading Flow
 
 ```
 User visits /course/[slug]/learn
@@ -149,13 +211,21 @@ useEffect triggers on item change
 getCourseContent(slug, currentContentPath) loads markdown
   ↓
 ContentRenderer displays markdown content
+  ↓
+[USER CLICKS CHATBOT]
+  ↓
+Chatbot sends request to LangServe API
+  ↓
+AI processes with LangChain
+  ↓
+Response displayed in chatbot UI
 ```
 
 ---
 
-## 3. Key Data Structures
+## 4. Key Data Structures
 
-### 3.1 Course Types (`features/course/types/course.types.ts`)
+### 4.1 Course Types (`features/course/types/course.types.ts`)
 
 ```typescript
 interface Course {
@@ -198,7 +268,7 @@ interface CourseProgress {
 }
 ```
 
-### 3.2 API Endpoints
+### 4.2 Existing Frontend API Endpoints
 
 | Endpoint | Method | Purpose |
 |-----------|---------|---------|
@@ -206,32 +276,24 @@ interface CourseProgress {
 | `/api/courses/[slug]` | GET | Get course details + progress |
 | `/api/courses/[slug]/content` | POST | Get markdown content by path |
 
+### 4.3 LangServe API Endpoints (to create)
+
+| Endpoint | Method | Purpose |
+|-----------|---------|---------|
+| `/chatbot/invoke` | POST | Q&A with context |
+| `/chatbot/stream` | POST | Streaming Q&A |
+| `/explain-code/invoke` | POST | Code explanation |
+| `/hint/invoke` | POST | Progressive hints |
+| `/quiz-feedback/invoke` | POST | Quiz feedback |
+
 ---
 
-## 4. Integration Points for Chatbot
+## 5. Integration Points for Chatbot
 
-### 4.1 Optimal Integration Locations
+### 5.1 Optimal Integration Locations
 
-#### Location A: Content Area (Primary)
-**Position**: Right side or bottom of content area
-**Rationale**: Direct context awareness of current lesson content
-**Implementation**:
-```tsx
-<div className="lg:col-span-3 relative">
-  {/* Existing Content */}
-  <ContentRenderer content={content} />
+#### Location A: Floating Action Button (Recommended) ⭐
 
-  {/* Chatbot Integration Point */}
-  <ChatbotAssistant
-    courseId={slug}
-    currentSectionId={currentSectionId}
-    currentItemId={currentItemId}
-    content={content}
-  />
-</div>
-```
-
-#### Location B: Floating Action Button
 **Position**: Fixed position (bottom-right)
 **Rationale**: Always accessible without cluttering content
 **Implementation**:
@@ -242,21 +304,17 @@ interface CourseProgress {
 />
 ```
 
-#### Location C: Sidebar Enhancement
+#### Location B: Content Area (Alternative)
+
+**Position**: Right side or bottom of content area
+**Rationale**: Direct context awareness of current lesson content
+
+#### Location C: Sidebar Enhancement (Alternative)
+
 **Position**: Within CourseSidebar as expandable section
 **Rationale**: Natural course navigation flow integration
-**Implementation**:
-```tsx
-<Sidebar>
-  {/* Existing timeline */}
-  <ChatbotSection
-    active={chatbotOpen}
-    onToggle={toggleChatbot}
-  />
-</Sidebar>
-```
 
-### 4.2 Context Data Available for Chatbot
+### 5.2 Context Data Available for Chatbot
 
 ```typescript
 interface ChatbotContext {
@@ -281,45 +339,95 @@ interface ChatbotContext {
 
 ---
 
-## 5. API Integration Strategy for Chatbot
+## 6. Frontend-Backend Connection Strategy
 
-### 5.1 Recommended API Structure
+### 6.1 Architecture Diagram
 
-```typescript
-// Chatbot API Endpoints to create:
-POST /api/chatbot/query
-{
-  "courseSlug": "python-basics",
-  "sectionId": "section-01",
-  "itemId": "01-introduction",
-  "content": "...markdown content...",
-  "query": "What is Python?"
-  "history": [...]
-}
-→ Response: { "answer": "...", "context": {...} }
-
-POST /api/chatbot/stream
-{
-  "sessionId": "...",
-  "query": "..."
-}
-→ Response: Server-Sent Events (SSE) stream
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Maguru Platform                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────┐      ┌─────────────────────────┐ │
+│  │   Next.js Frontend    │      │   Python Backend       │ │
+│  │   (port 3000)         │      │   (port 8000)         │ │
+│  │                        │      │                        │ │
+│  │  ┌─────────────────┐   │      │  ┌─────────────────┐   │ │
+│  │  │  Learn Page    │   │      │  │  LangServe      │   │ │
+│  │  │  + Chatbot UI  │   │      │  │  Server         │   │ │
+│  │  │                │   │      │  │                │   │ │
+│  │  │  fetch() ──────┼───┼─────►│  /chatbot/invoke│   │ │
+│  │  │                │   │      │  │                │   │ │
+│  │  │  LangChain Client│  │      │  │  ┌───────────┐  │   │ │
+│  │  └─────────────────┘   │      │  │  │AI Chains │  │   │ │
+│  │                        │      │  │  │           │  │   │ │
+│  └─────────────────────────┘      │  │  │ qa_chatbot│  │   │ │
+│                                  │  │  │ explain   │  │   │ │
+│                                  │  │  │ _code     │  │   │ │
+│                                  │  │  │ hint_     │  │   │ │
+│                                  │  │  │ generator │  │   │ │
+│                                  │  │  └───────────┘  │   │ │
+│                                  │  └─────────────────┘   │ │
+│                                  └─────────────────────────┘ │
+│                                                             │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### 5.2 Integration with Existing API Pattern
+### 6.2 Frontend API Client
 
-The existing API follows Next.js App Router conventions:
-- Route handlers in `app/api/`
-- JSON responses with `NextResponse.json()`
-- Error handling with status codes
+**Location**: `maguru/lib/ai-api.ts`
 
-Chatbot API should follow the same pattern for consistency.
+```typescript
+// LangServe API Configuration
+const LANGSERVE_BASE_URL = process.env.NEXT_PUBLIC_LANGSERVE_URL || 'http://localhost:8000'
+
+// Q&A Chatbot
+export interface ChatbotRequest {
+  question: string
+  session_title: string
+  session_content: string
+  chat_history: Array<{role: string, content: string}>
+}
+
+export interface ChatbotResponse {
+  output: string
+}
+
+export async function queryChatbot(request: ChatbotRequest): Promise<ChatbotResponse> {
+  const response = await fetch(`${LANGSERVE_BASE_URL}/chatbot/invoke`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: request })
+  })
+
+  if (!response.ok) {
+    throw new Error('Chatbot API error')
+  }
+
+  return response.json()
+}
+
+// Streaming version (optional)
+export async function streamChatbot(request: ChatbotRequest): Promise<ReadableStream> {
+  const response = await fetch(`${LANGSERVE_BASE_URL}/chatbot/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: request })
+  })
+
+  if (!response.ok) {
+    throw new Error('Chatbot streaming error')
+  }
+
+  return response.body!
+}
+```
 
 ---
 
-## 6. UI/UX Design Considerations
+## 7. UI/UX Design Considerations
 
-### 6.1 Current Theme: Ancient Fantasy Asia
+### 7.1 Current Theme: Ancient Fantasy Asia
 
 **Color Palette**:
 - Primary: `beige-50` to `beige-900` (backgrounds, text)
@@ -335,60 +443,88 @@ Chatbot API should follow the same pattern for consistency.
 - Whimsical animations (bounce, scale)
 - Nature motifs (emoji: 📚, 🎓)
 
-### 6.2 Chatbot UI Recommendations
+### 7.2 Chatbot UI Recommendations
 
 1. **Match Theme**: Use consistent colors and styling
 2. **Glass Effect**: Implement frosted glass chat interface
 3. **Smooth Animations**: Use existing animation patterns
 4. **Responsive**: Collapsible on mobile, persistent on desktop
+5. **Streaming UI**: Show typing indicator during AI response
 
 ---
 
-## 7. Technical Constraints & Considerations
+## 8. Technical Constraints & Considerations
 
-### 7.1 Client-Side Only
-The learn page is a client component (`'use client'`), meaning:
-- ✅ Can use browser APIs (localStorage, IndexedDB)
-- ✅ Real-time interactions possible
-- ⚠️ API calls from client only (no server actions directly)
+### 8.1 CORS Configuration
 
-### 7.2 Content Security
-- Path validation prevents directory traversal
-- Content is markdown-based (safe rendering)
-- No user-generated content injection currently
+**LangServe perlu CORS enabled untuk Next.js**:
 
-### 7.3 Progress Tracking
-- Stored in localStorage: `maguru_course_progress`
-- Can be enhanced with chatbot interaction tracking
+```python
+# Di maguru-model/server.py
+from fastapi.middleware.cors import CORSMiddleware
 
-### 7.4 Performance Considerations
-- Content is loaded on-demand per item
-- Markdown parsing happens client-side
-- Progressive loading with skeleton states
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "https://maguru.com"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+### 8.2 Environment Variables
+
+**Required Variables**:
+
+```bash
+# Backend (maguru-model/.env)
+OPENROUTER_API_KEY=sk-...
+OPENROUTER_MODEL=google/gemma-7b-it
+ZAI_API_KEY=sk-...
+ZAI_MODEL=glm-4.7
+
+# Frontend (maguru/.env.local)
+NEXT_PUBLIC_LANGSERVE_URL=http://localhost:8000
+```
+
+### 8.3 Error Handling
+
+**Frontend Error Handling**:
+- Network errors: Retry with exponential backoff
+- API errors: Show user-friendly message
+- Timeout: Fallback to cached responses
+
+**Backend Error Handling**:
+- LLM API errors: Fallback to secondary provider
+- Invalid input: Return specific error messages
+- Rate limiting: Implement request throttling
 
 ---
 
-## 8. Recommendations for Chatbot Implementation
+## 9. Recommendations for Chatbot Implementation
 
-### 8.1 Immediate Integration Steps
+### 9.1 Immediate Integration Steps
 
-1. **Create Chatbot Component**
-   - Location: `features/course/components/ChatbotAssistant.tsx`
-   - Use existing UI components (Button, Dialog, Sheet)
+1. **Create LangServe Server** (`maguru-model/server.py`)
+   - Install langserve
+   - Import chains
+   - Use `add_routes()` to expose chains
 
-2. **Add Chatbot Context Provider**
-   - Wrap the learning mode content
-   - Provide course context to chatbot
+2. **Create Frontend API Client** (`maguru/lib/ai-api.ts`)
+   - Implement queryChatbot function
+   - Implement streaming version (optional)
+   - Add error handling
 
-3. **Implement Chatbot Toggle**
-   - Floating action button (FAB) with icon
-   - Slide-in panel using Sheet component
+3. **Create Chatbot Component** (`maguru/features/course/components/ChatbotAssistant.tsx`)
+   - Use shadcn/ui Sheet component
+   - Add floating action button
+   - Implement chat interface
 
-4. **API Integration**
-   - Create `/api/chatbot/query` endpoint
-   - Connect chatbot component to backend
+4. **Integrate to Learn Page**
+   - Add ChatbotAssistant to learn page
+   - Pass context (course, section, item, content)
+   - Test integration
 
-### 8.2 Feature Enhancements
+### 9.2 Feature Enhancements
 
 | Priority | Feature | Description |
 |----------|----------|-------------|
@@ -396,99 +532,55 @@ The learn page is a client component (`'use client'`), meaning:
 | **P0** | Progress tracking | Track chatbot-assisted learning |
 | **P1** | Hint system | Contextual hints for exercises |
 | **P1** | Code explanation | Python code explanations in chatbot |
+| **P1** | Streaming responses | Real-time typing effect |
 | **P2** | Quiz assistance | Help with quiz questions |
 | **P2** | Learning recommendations | Suggest next topics |
 
-### 8.3 Code Integration Example
+---
 
-```tsx
-// features/course/components/ChatbotAssistant.tsx
-'use client'
+## 10. Deployment Strategy
 
-import { useState } from 'react'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { MessageCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ChatbotContext } from './ChatbotContext'
+### 10.1 Development Environment
 
-export function ChatbotAssistant({
-  courseId,
-  sectionId,
-  itemId,
-  content
-}: ChatbotContext) {
-  const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState([])
+```
+Terminal 1 (Backend):
+cd maguru-model
+pip install -r requirements.txt langserve
+python server.py
+# Running on http://localhost:8000
 
-  const handleQuery = async (query: string) => {
-    // API call to chatbot backend
-    const response = await fetch('/api/chatbot/query', {
-      method: 'POST',
-      body: JSON.stringify({
-        courseId, sectionId, itemId, content, query
-      })
-    })
-    // Handle response...
-  }
-
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg">
-          <MessageCircle className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="w-full sm:w-[500px]">
-        <ChatInterface messages={messages} onSend={handleQuery} />
-      </SheetContent>
-    </Sheet>
-  )
-}
+Terminal 2 (Frontend):
+cd ../maguru
+npm run dev
+# Running on http://localhost:3000
 ```
 
----
+### 10.2 Production Deployment
 
-## 9. Testing Considerations
-
-### 9.1 Unit Tests
-- Chatbot component rendering
-- Context passing correctness
-- API integration mocking
-
-### 9.2 Integration Tests
-- End-to-end chatbot flow
-- Context accuracy across course navigation
-- Progress tracking with chatbot
-
-### 9.3 E2E Tests (Playwright)
-- User opens chatbot → asks question → receives answer
-- Chatbot context updates on navigation
-- Chatbot persists across item changes
+| Component | Platform | URL | Notes |
+|------------|----------|-----|-------|
+| Frontend | Vercel | https://maguru.com | Add NEXT_PUBLIC_LANGSERVE_URL |
+| Backend | Railway/Render | https://maguru-ai.railway.app | Configure CORS |
 
 ---
 
-## 10. Summary
+## 11. Summary
 
 ### Key Takeaways
 
-1. **Architecture**: Clean feature-based architecture with clear separation
-2. **Target Page**: `app/course/[slug]/learn/page.tsx` is ideal for chatbot integration
-3. **Context Available**: Full course, section, item, and content data accessible
-4. **Integration Points**: Multiple viable locations (content area, FAB, sidebar)
-5. **API Pattern**: Consistent with existing Next.js API routes
-6. **Design System**: Ancient Fantasy Asia theme to maintain consistency
+1. **Architecture**: LangServe + Next.js is a clean, production-ready combination
+2. **Backend**: AI chains are ready and functional
+3. **Frontend**: Learn page is ideal for chatbot integration
+4. **Integration**: LangServe provides automatic API generation
+5. **Context Available**: Full course data can be passed to chatbot
+6. **Design**: Ancient Fantasy Asia theme to maintain consistency
 
 ### Next Steps
 
-1. Design chatbot UI matching the theme
-2. Create chatbot API endpoint
-3. Implement chatbot component
-4. Integrate with learn page
-5. Test context accuracy and responsiveness
-6. Deploy and monitor usage
+See `docs/plan.md` for detailed implementation plan.
 
 ---
 
 **Analysis Completed**: 2026-02-15
 **Project**: Maguru Learning Platform
-**Target**: Course & Learn Mode for AI Chatbot Integration
+**Integration**: LangServe Backend + Next.js Frontend
