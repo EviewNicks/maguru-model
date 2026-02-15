@@ -4,7 +4,7 @@
 # ========================================
 #
 # Python Version: 3.10 or 3.11 (recommended)
-# Last Updated: February 2025
+# Last Updated: February 2026
 #
 # For installation instructions, see INSTALL.md
 # or use: pip install -r requirements.txt
@@ -14,20 +14,29 @@
 # ========================================
 # Core Framework
 # ========================================
-streamlit>=1.35.0,<1.40.0
-langchain>=0.2.0,<0.4.0
-langchain-openai>=0.1.0,<0.3.0
-langgraph>=0.1.0,<0.3.0
+streamlit>=1.35.0,<2.0.0
+langchain>=0.2.0,<2.0.0
+langchain-openai>=0.1.0,<2.0.0
+langgraph>=0.1.0,<2.0.0
+
+# ========================================
+# LangServe API Server
+# ========================================
+langserve>=0.3.0,<1.0.0
+fastapi>=0.110.0,<1.0.0
+uvicorn[standard]>=0.27.0,<1.0.0
+sse-starlette>=1.6.0,<2.0.0
 
 # ========================================
 # AI/LLM
 # ========================================
-openai>=1.35.0,<2.0.0
+openai>=2.0.0,<3.0.0
 
 # ========================================
 # Data Processing
 # ========================================
 pyyaml>=6.0.1,<7.0.0
+pydantic>=2.0.0,<3.0.0
 
 # ========================================
 # Configuration
