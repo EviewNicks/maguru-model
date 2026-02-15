@@ -38,7 +38,7 @@ def _create_llm_with_fallback():
                 api_key=openrouter_key,
                 base_url="https://openrouter.ai/api/v1",
                 temperature=0.7,
-                max_tokens=500
+                max_completion_tokens=1500
             )
             # Test connection
             llm.invoke("Hello")
@@ -56,7 +56,7 @@ def _create_llm_with_fallback():
             api_key=zai_key,
             base_url="https://api.z.ai/api/paas/v4/",
             temperature=0.7,
-            max_tokens=500
+            max_completion_tokens=1500
         )
 
     # If no API keys available, return OpenRouter with default (will fail on invoke)
@@ -65,5 +65,5 @@ def _create_llm_with_fallback():
         api_key=openrouter_key or "sk-placeholder",
         base_url="https://openrouter.ai/api/v1",
         temperature=0.7,
-        max_tokens=500
+        max_completion_tokens=1500
     )

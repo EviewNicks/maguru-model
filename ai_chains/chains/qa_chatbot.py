@@ -1,5 +1,6 @@
 """Q&A chatbot chain with context awareness."""
 
+from pathlib import Path
 from langchain_core.prompts import load_prompt
 from langchain_core.output_parsers import StrOutputParser
 from . import get_llm
@@ -11,7 +12,9 @@ def _get_chain():
     """Get or create chain (lazy initialization)."""
     global _chain
     if _chain is None:
-        _prompt = load_prompt("ai_chains/prompts/qa_chatbot.yaml")
+        # Resolve prompt path relative to this file (cross-platform)
+        prompt_path = Path(__file__).parent.parent / "prompts" / "qa_chatbot.yaml"
+        _prompt = load_prompt(str(prompt_path))
         _chain = _prompt | get_llm() | StrOutputParser()
     return _chain
 
