@@ -1,130 +1,73 @@
-# Maguru - AI Coding Learning Platform
+# Maguru - LangServe API Server
 
-> **Vision**: Platform edtech berbasis AI yang membantu siswa Indonesia belajar coding dengan pendekatan interaktif, personal, dan adaptif.
+> **AI Backend Server** for Maguru Learning Platform - Exposes AI chains via FastAPI + LangServe
 
 ## 📋 Overview
 
-Maguru adalah platform pembelajaran coding berbasis AI di mana siswa belajar Python melalui alur interaktif: **Teori → Praktik dengan AI Chatbot → Kuis → Prasyarat Review (jika gagal)**.
-
-### Target User
-- Siswa dengan **basic knowledge** (tidak absolute beginner)
-- Fokus bahasa: **Python**
-- Belajar mandiri dengan AI sebagai co-teacher
+LangServe-based API server that provides AI-powered learning assistance for the Maguru platform. Supports streaming chatbot responses, code explanations, hint generation, and quiz feedback.
 
 ## 🚀 Tech Stack
 
 | Component | Technology |
 |-----------|------------|
-| **UI Framework** | Streamlit |
-| **AI Framework** | LangChain (LCEL + LangGraph) |
-| **LLM** | GPT-3.5-turbo |
-| **Auth** | Anonymous (no login for MVP) |
-| **Data Storage** | Streamlit Session State |
+| **API Framework** | FastAPI |
+| **AI Framework** | LangChain (LCEL) + LangServe |
+| **LLM Provider** | OpenRouter (supports GPT-4, Gemma, Claude, etc.) |
+| **Streaming** | Server-Sent Events (SSE) |
 
-## 🎯 Core Features (MVP)
+## Setup
 
-### 1. Interactive Learning Flow
-- Course Selection → AI Greeting → Theory Content → Chatbot Q&A → Quiz → Pass/Fail Decision
-- AI menyapa siswa secara personal dan menjelaskan apa yang akan dipelajari
-- Materi disajikan dalam format terstruktur dengan bahasa Indonesia
+### Backend (maguru-model/)
 
-### 2. AI Capabilities
-| Feature | Description |
-|---------|-------------|
-| **Code Explanation** | Jelaskan cara kerja kode dengan analogi real-world |
-| **Hint Generation** | 3 level: gentle → conceptual → direct |
-| **Quiz Feedback** | Explain jawaban benar/salah dengan positive reinforcement |
-| **Adaptive Learning** | Rekomendasi prasyarat jika gagal kuis |
-| **Q&A Chatbot** | Jawab pertanyaan siswa dengan context-aware responses |
-
-### 3. Assessment System
-- **Format**: Multiple Choice + Code Completion
-- **Passing Score**: 70%
-- **Retry**: Unlimited dengan automatic prerequisite review
-- **Progress Tracking**: Visual progress indicators
-
-## 📁 Project Structure
-
-```
-maguru/
-├── app.py                          # Main Streamlit app
-├── requirements.txt                # Dependencies
-├── .env                            # API keys (not in repo)
-├── .gitignore                      # Git ignore rules
-├── README.md                       # This file
-├── LICENSE                         # MIT License
-│
-├── docs/                           # Documentation
-│   ├── project.md                  # Original project concept
-│   └── new-project.md              # Detailed MVP specification
-│
-├── data/                           # Course content
-│   └── courses/
-│       └── python_basics/
-│           ├── course.yaml
-│           └── modules/
-│
-├── langchain/                      # AI components
-│   ├── chains/
-│   │   ├── explain_code.py
-│   │   ├── hint_generator.py
-│   │   └── quiz_feedback.py
-│   ├── graphs/
-│   │   └── adaptive_learning.py
-│   └── prompts/
-│
-├── ui/                             # UI components
-│   ├── pages/
-│   │   ├── home.py
-│   │   ├── learn.py
-│   │   ├── quiz.py
-│   │   └── progress.py
-│   └── components/
-│       ├── chatbot.py
-│       └── progress_bar.py
-│
-└── utils/                          # Utilities
-    ├── session_manager.py
-    ├── content_loader.py
-    └── quiz_validator.py
-```
-
-## 🔧 Installation
-
-### Prerequisites
-- Python 3.9 or higher
-- pip package manager
-- OpenAI API key
-
-### Setup
-
-1. **Clone the repository**
+1. **Copy environment template:**
 ```bash
-git clone https://github.com/yourusername/maguru.git
-cd maguru
+cp .env.example .env
 ```
 
-2. **Create virtual environment**
+2. **Edit `.env` and add your API keys:**
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+OPENROUTER_API_KEY=sk-or-your-key-here
+OPENROUTER_MODEL=google/gemma-7b-it:free
 ```
 
-3. **Install dependencies**
+3. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Set up environment variables**
-Create a `.env` file in the root directory:
-```
-OPENAI_API_KEY=your_openai_api_key_here
+4. **Run server:**
+```bash
+python server.py
+# → Running on http://localhost:8000
 ```
 
-5. **Run the application**
+### Frontend Integration
+
+1. **Copy environment template:**
 ```bash
-streamlit run app.py
+cp .env.local.example .env.local
 ```
+
+2. **(Optional) Edit if backend runs on different port:**
+```bash
+NEXT_PUBLIC_LANGSERVE_URL=http://localhost:8000
+```
+
+3. **Install and run:**
+```bash
+npm install
+npm run dev
+# → Running on http://localhost:3000
+```
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **CORS errors** | Check `ALLOWED_ORIGINS` in backend `.env` |
+| **Connection refused** | Ensure backend is running on port 8000 |
+| **API errors** | Verify `OPENROUTER_API_KEY` is valid |
+| **Missing .env** | Copy `.env.example` to `.env` first |
 
 ## 📚 Documentation
 

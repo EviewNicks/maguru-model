@@ -33,6 +33,16 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+# Validate required environment variables
+required_vars = ['OPENROUTER_API_KEY']
+missing = [v for v in required_vars if not os.getenv(v)]
+if missing:
+    raise RuntimeError(
+        f"❌ Missing required environment variables: {', '.join(missing)}\n"
+        f"Please create a .env file with these variables.\n"
+        f"Copy .env.example to .env and add your API keys."
+    )
+
 # ========================================
 # Chain Adapters (LangServe compatibility)
 # ========================================

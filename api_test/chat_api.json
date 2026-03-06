@@ -1,0 +1,188 @@
+{
+  "info": {
+    "name": "Maguru API - LangServe",
+    "description": "Postman collection for testing Maguru LangServe API endpoints\n\n⚠️ IMPORTANT: All POST requests must wrap input in `input` key:\n{\n  \"input\": { ...actual_input... }\n}",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the LangServe server is running"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Chatbot - Invoke",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": {\n    \"question\": \"Apa itu variabel dalam Python?\",\n    \"session_title\": \"Python Basics\",\n    \"session_content\": \"Variabel adalah tempat penyimpanan data...\",\n    \"chat_history\": []\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chatbot/invoke",
+          "host": ["{{baseUrl}}"],
+          "path": ["chatbot", "invoke"]
+        },
+        "description": "Invoke chatbot chain (non-streaming)"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Chatbot - Stream",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": {\n    \"question\": \"Apa itu variabel dalam Python?\",\n    \"session_title\": \"Python Basics\",\n    \"session_content\": \"Variabel adalah tempat penyimpanan data...\",\n    \"chat_history\": []\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chatbot/stream",
+          "host": ["{{baseUrl}}"],
+          "path": ["chatbot", "stream"]
+        },
+        "description": "Stream chatbot response (SSE)\n\nExpected response: text/event-stream with data: {\"output\": \"...\"}"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Explain Code - Stream",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": {\n    \"code\": \"x = 5\\nprint(x)\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/explain-code/stream",
+          "host": ["{{baseUrl}}"],
+          "path": ["explain-code", "stream"]
+        },
+        "description": "Stream code explanation"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Hint Generator - Stream",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": {\n    \"task\": \"Buat function untuk menghitung luas segitiga\",\n    \"attempt\": \"def hitung(): return 0\",\n    \"level\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/hint/stream",
+          "host": ["{{baseUrl}}"],
+          "path": ["hint", "stream"]
+        },
+        "description": "Stream hint for exercise\n\nlevel: 1 (Halus), 2 (Konseptual), 3 (Langsung)"
+      },
+      "response": []
+    },
+    {
+      "name": "6. Quiz Feedback - Stream",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": {\n    \"question\": \"Apa output dari print(2 + 2)?\",\n    \"student_answer\": \"5\",\n    \"correct_answer\": \"4\",\n    \"is_correct\": false\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/quiz-feedback/stream",
+          "host": ["{{baseUrl}}"],
+          "path": ["quiz-feedback", "stream"]
+        },
+        "description": "Stream quiz feedback\n\nis_correct: true/false (not string)"
+      },
+      "response": []
+    },
+    {
+      "name": "7. Greeting - Stream",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "text/event-stream"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"input\": {\n    \"student_name\": \"Budi\",\n    \"course_metadata\": {\n      \"title\": \"Python Basics for Beginners\"\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/greeting/stream",
+          "host": ["{{baseUrl}}"],
+          "path": ["greeting", "stream"]
+        },
+        "description": "Stream personalized greeting"
+      },
+      "response": []
+    }
+  ]
+}
