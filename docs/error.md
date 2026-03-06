@@ -1,73 +1,20 @@
-(D:\conda_envs\maguru) PS D:\.maguru\maguru-model> python server.py
-INFO:     Will watch for changes in these directories: ['D:\\.maguru\\maguru-model']
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [34156] using WatchFiles
-INFO:watchfiles.main:4 changes detected
-INFO:     Started server process [30264]
-INFO:     Waiting for application startup.
-
-     __          ___      .__   __.   _______      _______. _______ .______     ____    ____  _______
-    |  |        /   \     |  \ |  |  /  _____|    /       ||   ____||   _  \    \   \  /   / |   ____|
-    |  |       /  ^  \    |   \|  | |  |  __     |   (----`|  |__   |  |_)  |    \   \/   /  |  |__
-    |  |      /  /_\  \   |  . `  | |  | |_ |     \   \    |   __|  |      /      \      /   |   __|
-    |  `----./  _____  \  |  |\   | |  |__| | .----)   |   |  |____ |  |\  \----.  \    /    |  |____
-    |_______/__/     \__\ |__| \__|  \______| |_______/    |_______|| _| `._____|   \__/     |_______|
-    
-LANGSERVE: Playground for chain "/greeting/" is live at:
-LANGSERVE:  │
-LANGSERVE:  └──> /greeting/playground/
-LANGSERVE:
-LANGSERVE: Playground for chain "/hint/" is live at:
-LANGSERVE:  │
-LANGSERVE:  └──> /hint/playground/
-LANGSERVE:
-LANGSERVE: Playground for chain "/chatbot/" is live at:
-LANGSERVE:  │
-LANGSERVE:  └──> /chatbot/playground/
-LANGSERVE:
-LANGSERVE: Playground for chain "/explain-code/" is live at:
-LANGSERVE:  │
-LANGSERVE:  └──> /explain-code/playground/
-LANGSERVE:
-LANGSERVE: Playground for chain "/quiz-feedback/" is live at:
-LANGSERVE:  │
-LANGSERVE:  └──> /quiz-feedback/playground/
-LANGSERVE:
-LANGSERVE: See all available routes at /docs/
-INFO:     Application startup complete.
-INFO:watchfiles.main:3 changes detected
-
-
-
-(base) PS D:\.maguru\maguru-model> curl http://localhost:8000/health
-
-Security Warning: Script Execution Risk                                                                         Invoke-WebRequest parses the content of the web page. Script code in the web page might be run when the page is  parsed.                                                                                                              RECOMMENDED ACTION:                                                                                       
-      Use the -UseBasicParsing switch to avoid script code execution.
-
-      Do you want to continue?
-    
-[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"): Y
-
-
-StatusCode        : 200
-StatusDescription : OK
-Content           : {"status":"ok","service":"Maguru AI API","version":"1.0.0"}
-RawContent        : HTTP/1.1 200 OK
-                    Content-Length: 59
-                    Content-Type: application/json
-                    Date: Sun, 15 Feb 2026 08:24:02 GMT
-                    Server: uvicorn
-
-                    {"status":"ok","service":"Maguru AI API","version":"1.0.0"}
-Forms             : {}
-Headers           : {[Content-Length, 59], [Content-Type, application/json], [Date, Sun, 15 Feb 2026 08:24:02 
-                    GMT], [Server, uvicorn]}
-Images            : {}
-InputFields       : {}
-Links             : {}
-ParsedHtml        : mshtml.HTMLDocumentClass
-RawContentLength  : 59
-
-
-
-(base) PS D:\.maguru\maguru-model> 
+[Fast Refresh] done in 103ms
+logger.ts:196 2026-03-06T09:54:05.056Z [INFO] [ChatbotAssistant][sendMessage] Starting chatbot request{  "question": "Explain this topic in simple terms",  "aiMessageIndex": 1,  "performance": {    "timestamp": 1772790845056,    "memory": null  }}
+logger.ts:196 2026-03-06T09:54:05.056Z [INFO] [LangServeAPI][streamChatbot] Starting chatbot stream{  "url": "http://localhost:8000/chatbot/stream",  "question": "Explain this topic in simple terms",  "performance": {    "timestamp": 1772790845056,    "memory": null  }}
+installHook.js:1 2026-03-06T09:54:12.585Z [WARN] [LangServeAPI][streamText] Event is not an object{  "chunk": 1,  "eventType": "string",  "event": "\"\\n\\n**Jangan khawatir, siswa! Mari kita pecahkan topik ini dengan mudah dan santai, seperti mempela",  "performance": {    "timestamp": 1772790852585,    "memory": null  }}
+overrideMethod @ installHook.js:1
+warn @ logger.ts:220
+streamText @ api.ts:216
+await in streamText
+streamChatbot @ api.ts:303
+sendMessage @ ChatbotAssistant.tsx:106
+executeDispatch @ react-dom-client.development.js:16970
+runWithFiberInDEV @ react-dom-client.development.js:871
+processDispatchQueue @ react-dom-client.development.js:17020
+(anonymous) @ react-dom-client.development.js:17621
+batchedUpdates$1 @ react-dom-client.development.js:3311
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:17174
+dispatchEvent @ react-dom-client.development.js:21357
+dispatchDiscreteEvent @ react-dom-client.development.js:21325Understand this warning
+logger.ts:196 2026-03-06T09:54:12.593Z [INFO] [LangServeAPI][streamChatbot] Stream completed successfully{  "totalLength": 0,  "performance": {    "timestamp": 1772790852593,    "memory": null  }}
+logger.ts:196 2026-03-06T09:54:12.594Z [INFO] [ChatbotAssistant][sendMessage] Stream completed{  "totalLength": 0,  "performance": {    "timestamp": 1772790852594,    "memory": null  }}
