@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Verify server can start
+      run: |
+        timeout 10s python server.py || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+    # Tambahkan deployment steps di sini sesuai platform hosting
+    # Contoh: Railway, Render, AWS, GCP, dll

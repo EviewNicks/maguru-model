@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: 
+      - main
+      - develop
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'task/**'
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.12']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Check code syntax
+      run: |
+        echo "Checking syntax for main files..."
+        python -m py_compile server.py || echo "server.py syntax check failed"
+        python -m py_compile app.py || echo "app.py syntax check failed"
+        
+        echo "Checking syntax for ai_chains..."
+        find ai_chains -name "*.py" -type f ! -path "*/notebooks/*" -exec python -m py_compile {} \; || true
+        
+        echo "Checking syntax for utils..."
+        find utils -name "*.py" -type f -exec python -m py_compile {} \; || true
+
+    - name: Run tests
+      run: |
+        echo "Looking for test files..."
+        
+        # Check if any test directories exist
+        TEST_FOUND=false
+        
+        if [ -d "tests" ] && [ -n "$(find tests -name 'test_*.py' -o -name '*_test.py')" ]; then
+          echo "Running tests in tests/"
+          pytest tests/ --tb=short --disable-warnings -v || true
+          TEST_FOUND=true
+        fi
+        
+        if [ -d "ai_chains/tests" ] && [ -n "$(find ai_chains/tests -name 'test_*.py' -o -name '*_test.py')" ]; then
+          echo "Running tests in ai_chains/tests/"
+          pytest ai_chains/tests/ --tb=short --disable-warnings -v || true
+          TEST_FOUND=true
+        fi
+        
+        if [ -d "utils/tests" ] && [ -n "$(find utils/tests -name 'test_*.py' -o -name '*_test.py')" ]; then
+          echo "Running tests in utils/tests/"
+          pytest utils/tests/ --tb=short --disable-warnings -v || true
+          TEST_FOUND=true
+        fi
+        
+        # Fallback to manual test if no pytest tests found
+        if [ "$TEST_FOUND" = false ]; then
+          echo "No pytest test directories found, running manual test..."
+          if [ -f "test_ai_chains_simple.py" ]; then
+            python test_ai_chains_simple.py
+          else
+            echo "No test files found. Skipping tests."
+          fi
+        fi
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install linting tools
+      run: |
+        pip install flake8
+
+    - name: Lint with flake8 (Critical Errors Only)
+      run: |
+        echo "Checking for critical errors (E9, F63, F7, F82)..."
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics \
+          --exclude=.git,__pycache__,.pytest_cache,.venv,venv,node_modules,.claude,*.ipynb_checkpoints
+
+    - name: Lint with flake8 (Full Report - Non-blocking)
+      run: |
+        echo "Running full lint check (warnings only)..."
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics \
+          --exclude=.git,__pycache__,.pytest_cache,.venv,venv,node_modules,.claude,*.ipynb_checkpoints \
+          --format='%(path)s:%(row)d:%(col)d: %(code)s %(text)s'

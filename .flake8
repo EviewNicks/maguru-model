@@ -1,0 +1,34 @@
+[flake8]
+# Exclude directories
+exclude =
+    .git,
+    __pycache__,
+    .pytest_cache,
+    .venv,
+    venv,
+    node_modules,
+    .claude,
+    .kiro,
+    *.ipynb_checkpoints,
+    build,
+    dist,
+    *.egg-info
+
+# Maximum line length
+max-line-length = 127
+
+# Maximum complexity
+max-complexity = 10
+
+# Ignore specific error codes (optional)
+ignore =
+    # W503: line break before binary operator (conflicts with black)
+    W503,
+    # E203: whitespace before ':' (conflicts with black)
+    E203
+
+# Show source code for errors
+show-source = True
+
+# Count errors
+count = True
