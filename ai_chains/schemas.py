@@ -14,8 +14,7 @@ class ChatbotInput(BaseModel):
     question: str = Field(..., description="Student's question", min_length=1)
     session_title: str = Field(..., description="Current session/lesson title", min_length=1)
     session_content: str = Field(default="", description="Session markdown content")
-    chat_history: List[Dict[str, str]] = Field(
-        default_factory=list,
+    chat_history: List[Dict[str, str]] = Field(default_factory=list,
         description="List of recent chat messages"
     )
 
@@ -58,7 +57,7 @@ class HintInput(BaseModel):
     task: str = Field(..., description="Practice task description", min_length=1)
     attempt: str = Field(default="", description="Student's current attempt")
     level: int = Field(
-        default=1,
+                       default=1,
         ge=1,
         le=3,
         description="Hint level (1=gentle, 2=conceptual, 3=direct)"
@@ -98,7 +97,7 @@ class GreetingInput(BaseModel):
     """Input model for AI greeting."""
     student_name: str = Field(default="Siswa", description="Student's name")
     course_metadata: Optional[Dict[str, Any]] = Field(
-        default_factory=dict,
+                                                      default_factory=dict,
         description="Course metadata with title and learning_objectives"
     )
 

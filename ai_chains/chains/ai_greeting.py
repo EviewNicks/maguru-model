@@ -60,5 +60,5 @@ def generate_greeting(student_name: str, course_metadata: dict) -> str:
             # Fallback if LLM response is too generic
             return _get_fallback_greeting(student_name, course_title)
         return result
-    except Exception as e:
+    except Exception:
         return _get_fallback_greeting(student_name, course_title)

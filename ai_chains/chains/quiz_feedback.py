@@ -37,7 +37,7 @@ def generate_feedback(question: str, student_answer: str,
             "correct_answer": str(correct_answer),
             "is_correct": status
         })
-    except Exception as e:
+    except Exception:
         if is_correct:
             return "Benar! Bagus sekali!"
         return f"Salah. Jawaban yang benar adalah: {correct_answer}"

@@ -9,6 +9,7 @@ load_dotenv()
 # Shared LLM instance with fallback support
 _llm = None
 
+
 def get_llm():
     """Get or create shared LLM instance with fallback.
 
@@ -33,8 +34,7 @@ def _create_llm_with_fallback():
 
     if openrouter_key and openrouter_key != "your_key_here":
         try:
-            llm = ChatOpenAI(
-                model=openrouter_model,
+            llm = ChatOpenAI(model=openrouter_model,
                 api_key=openrouter_key,
                 base_url="https://openrouter.ai/api/v1",
                 temperature=0.7,
@@ -51,8 +51,7 @@ def _create_llm_with_fallback():
     zai_model = os.getenv("ZAI_MODEL", "glm-4.7")
 
     if zai_key and zai_key != "your_key_here":
-        return ChatOpenAI(
-            model=zai_model,
+        return ChatOpenAI(model=zai_model,
             api_key=zai_key,
             base_url="https://api.z.ai/api/paas/v4/",
             temperature=0.7,
@@ -60,8 +59,7 @@ def _create_llm_with_fallback():
         )
 
     # If no API keys available, return OpenRouter with default (will fail on invoke)
-    return ChatOpenAI(
-        model=openrouter_model,
+    return ChatOpenAI(model=openrouter_model,
         api_key=openrouter_key or "sk-placeholder",
         base_url="https://openrouter.ai/api/v1",
         temperature=0.7,
