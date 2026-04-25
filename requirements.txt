@@ -52,7 +52,7 @@ requests>=2.31.0,<3.0.0
 # Optional Development Dependencies
 # ========================================
 # Uncomment these for development environment:
-pytest>=7.4.0
+pytest>=9.0.3
 pytest-cov>=4.1.0
 # black>=23.7.0
 # flake8>=6.1.0
