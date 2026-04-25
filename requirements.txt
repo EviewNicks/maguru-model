@@ -15,7 +15,7 @@
 # Core Framework
 # ========================================
 streamlit>=1.35.0,<2.0.0
-langchain>=0.2.0,<2.0.0
+langchain>=1.2.15,<2.0.0
 langchain-openai>=0.1.0,<2.0.0
 langgraph>=0.1.0,<2.0.0
 
