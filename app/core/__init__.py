@@ -1,0 +1,5 @@
+"""Core configuration and singletons."""
+from .config import settings
+from .llm import get_llm
+
+__all__ = ["settings", "get_llm"]
