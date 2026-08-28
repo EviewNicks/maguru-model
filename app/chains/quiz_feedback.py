@@ -1,10 +1,12 @@
-"""Quiz feedback chain."""
+﻿"""Quiz feedback chain."""
 import logging
+from typing import Any
 from pathlib import Path
 from langchain_core.prompts import load_prompt
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
 from app.core.llm import get_llm
+from app.schemas.chat import QuizFeedbackInputSchema
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +26,9 @@ def generate_feedback(question: str, student_answer: str, correct_answer: str, i
     status_str = "Benar" if is_correct else "Salah"
     try:
         return _get_chain().invoke({
-            "question": question,
-            "student_answer": student_answer,
-            "correct_answer": correct_answer,
+            "question": question or "Soal kuis pemrograman",
+            "student_answer": student_answer or "Tidak ada jawaban",
+            "correct_answer": correct_answer or "Jawaban yang benar",
             "is_correct": status_str
         })
     except Exception as e:
@@ -34,15 +36,26 @@ def generate_feedback(question: str, student_answer: str, correct_answer: str, i
         return "Feedback tidak tersedia sekarang."
 
 def create_quiz_feedback_chain():
-    """Create LangServe-compatible chain."""
-    def invoke(input_dict: dict) -> str:
-        is_correct = input_dict.get("is_correct", False)
+    """Create LangServe-compatible chain with explicit input schema."""
+    def invoke(input_data: Any) -> str:
+        if isinstance(input_data, dict):
+            question = input_data.get("question", "")
+            student_answer = input_data.get("student_answer", "")
+            correct_answer = input_data.get("correct_answer", "")
+            is_correct = input_data.get("is_correct", False)
+        else:
+            question = getattr(input_data, "question", "")
+            student_answer = getattr(input_data, "student_answer", "")
+            correct_answer = getattr(input_data, "correct_answer", "")
+            is_correct = getattr(input_data, "is_correct", False)
+
         if isinstance(is_correct, str):
             is_correct = is_correct.lower() in ("true", "1", "yes", "benar")
+
         return generate_feedback(
-            question=input_dict.get("question", ""),
-            student_answer=input_dict.get("student_answer", ""),
-            correct_answer=input_dict.get("correct_answer", ""),
+            question=question,
+            student_answer=student_answer,
+            correct_answer=correct_answer,
             is_correct=bool(is_correct)
         )
-    return RunnableLambda(invoke)
+    return RunnableLambda(invoke).with_types(input_type=QuizFeedbackInputSchema)

@@ -1,5 +1,6 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langserve.server import add_routes
 
@@ -11,7 +12,8 @@ from app.chains import (
     create_explain_code_chain,
     create_hint_generator_chain,
     create_quiz_feedback_chain,
-    create_greeting_chain
+    create_greeting_chain,
+    create_quiz_generator_chain
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +38,19 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # Global Exception Handlers for Security & Clean Error Handling
+    @application.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        logger.error(f"Unhandled Exception on {request.url}: {str(exc)}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": "Terjadi kesalahan pada server AI. Silakan coba beberapa saat lagi.",
+                "detail": str(exc) if settings.PROJECT_NAME != "Production" else "Internal server error"
+            }
+        )
+
     # Register API V1 Routers
     application.include_router(api_router, prefix="/api")
     
@@ -54,12 +69,14 @@ def _register_langserve_routes(app: FastAPI) -> None:
     hint_chain = create_hint_generator_chain()
     quiz_chain = create_quiz_feedback_chain()
     greeting_chain = create_greeting_chain()
+    quiz_gen_chain = create_quiz_generator_chain()
 
     add_routes(app, qa_chain, path="/chatbot")
     add_routes(app, explain_chain, path="/explain-code")
     add_routes(app, hint_chain, path="/hint")
     add_routes(app, quiz_chain, path="/quiz-feedback")
     add_routes(app, greeting_chain, path="/greeting")
+    add_routes(app, quiz_gen_chain, path="/generate-quiz")
 
 app = create_app()
 
@@ -76,7 +93,9 @@ async def root():
             "hint": {"invoke": "/hint/invoke", "stream": "/hint/stream"},
             "quiz-feedback": {"invoke": "/quiz-feedback/invoke", "stream": "/quiz-feedback/stream"},
             "greeting": {"invoke": "/greeting/invoke", "stream": "/greeting/stream"},
+            "generate-quiz": {"invoke": "/generate-quiz/invoke", "api_v1": "/api/v1/generate-quiz"},
             "admin-ingest": "/admin/ingest",
+            "ingest-text": "/api/v1/ingest",
             "docs": "/docs",
             "health": "/health"
         }

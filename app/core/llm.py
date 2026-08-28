@@ -1,54 +1,71 @@
+﻿"""LLM Provider with Multi-Model Fallback & Pool Failover."""
 import os
 import logging
+from typing import List, Any
 from langchain_openai import ChatOpenAI
 from .config import settings
 
 logger = logging.getLogger(__name__)
 
-_llm = None
+_llm_instance = None
+_llm_pool_instances: List[ChatOpenAI] = []
 
-def get_llm() -> ChatOpenAI:
-    """Get or create shared LLM instance with fallback support."""
-    global _llm
-    if _llm is None:
-        _llm = _create_llm_with_fallback()
-    return _llm
+def get_llm_pool() -> List[ChatOpenAI]:
+    """Get list of instantiated ChatOpenAI models from configured pool."""
+    global _llm_pool_instances
+    if not _llm_pool_instances:
+        _llm_pool_instances = _create_llm_pool()
+    return _llm_pool_instances
 
-def _create_llm_with_fallback() -> ChatOpenAI:
-    """Create ChatOpenAI instance using OpenRouter with Z.AI fallback."""
+def get_llm() -> Any:
+    """Get shared LLM instance with automatic multi-model fallback."""
+    global _llm_instance
+    if _llm_instance is None:
+        _llm_instance = _create_llm_with_pool_fallbacks()
+    return _llm_instance
+
+def _create_llm_pool() -> List[ChatOpenAI]:
+    """Create ChatOpenAI instances for each model in settings.model_pool."""
     openrouter_key = settings.OPENROUTER_API_KEY or os.getenv("OPENROUTER_API_KEY", "")
-    openrouter_model = settings.OPENROUTER_MODEL or os.getenv("OPENROUTER_MODEL", "google/gemma-7b-it:free")
+    models = settings.model_pool
+    pool = []
 
-    if openrouter_key and openrouter_key != "your_key_here":
+    for model_name in models:
         try:
-            return ChatOpenAI(
-                model=openrouter_model,
-                api_key=openrouter_key,
+            instance = ChatOpenAI(
+                model=model_name,
+                api_key=openrouter_key or "sk-placeholder",
                 base_url=settings.OPENROUTER_BASE_URL,
-                temperature=0.7,
-                max_completion_tokens=1500
+                temperature=settings.OPENROUTER_TEMPERATURE,
+                max_completion_tokens=settings.OPENROUTER_MAX_TOKENS
             )
+            pool.append(instance)
+            logger.info(f"Initialized model pool candidate: {model_name}")
         except Exception as e:
-            logger.warning(f"OpenRouter LLM initialization warning: {str(e)}")
+            logger.warning(f"Could not initialize model {model_name}: {str(e)}")
 
-    # Fallback to Z.AI if specified in environment
-    zai_key = os.getenv("ZAI_API_KEY", "")
-    zai_model = os.getenv("ZAI_MODEL", "glm-4.7")
-
-    if zai_key and zai_key != "your_key_here":
-        return ChatOpenAI(
-            model=zai_model,
-            api_key=zai_key,
-            base_url="https://api.z.ai/api/paas/v4/",
+    # Fallback to standard if pool is somehow empty
+    if not pool:
+        pool.append(ChatOpenAI(
+            model="openai/gpt-oss-20b:free",
+            api_key=openrouter_key or "sk-placeholder",
+            base_url=settings.OPENROUTER_BASE_URL,
             temperature=0.7,
             max_completion_tokens=1500
-        )
+        ))
 
-    # Return standard ChatOpenAI instance
-    return ChatOpenAI(
-        model=openrouter_model,
-        api_key=openrouter_key or "sk-placeholder",
-        base_url=settings.OPENROUTER_BASE_URL,
-        temperature=0.7,
-        max_completion_tokens=1500
-    )
+    return pool
+
+def _create_llm_with_pool_fallbacks() -> Any:
+    """Create primary LLM with automatic failover to fallback models."""
+    pool = get_llm_pool()
+    primary = pool[0]
+
+    if len(pool) > 1:
+        fallbacks = pool[1:]
+        # Use LangChain native with_fallbacks for seamless 429/404/500 failover
+        chained_llm = primary.with_fallbacks(fallbacks)
+        logger.info(f"LLM initialized with primary '{primary.model_name}' and {len(fallbacks)} fallback models.")
+        return chained_llm
+
+    return primary

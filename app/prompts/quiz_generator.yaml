@@ -1,0 +1,32 @@
+template: |
+  Kamu adalah AI Assistant Kurikulum Maguru. Buat tepat {num_questions} soal kuis pilihan ganda berbahasa Indonesia berdasarkan materi berikut.
+
+  Materi Pembelajaran:
+  {lesson_content}
+
+  Jumlah Soal: {num_questions}
+  Tingkat Kesulitan: {difficulty}
+
+  ATURAN KETAT:
+  1. Hasilkan LANGSUNG JSON Array murni.
+  2. JANGAN membuat teks proses berpikir (thinking process), kata pembuka, atau penjelasan apapun.
+  3. Karakter pertama jawabanmu HARUS '[' dan karakter terakhir HARUS ']'.
+  4. Setiap soal memiliki 4 opsi jawaban (a, b, c, d) dan 1 kunci jawaban benar (correct: 'a' / 'b' / 'c' / 'd').
+  5. Teks pertanyaan dan opsi HARUS menggunakan Bahasa Indonesia yang baik dan edukatif.
+
+  Format JSON:
+  [
+    {{
+      "question": "Teks pertanyaan di sini",
+      "options": {{
+        "a": "Pilihan A",
+        "b": "Pilihan B",
+        "c": "Pilihan C",
+        "d": "Pilihan D"
+      }},
+      "correct": "a",
+      "topic": "Nama Topik Pembelajaran",
+      "difficulty": "{difficulty}"
+    }}
+  ]
+input_variables: [lesson_content, num_questions, difficulty]

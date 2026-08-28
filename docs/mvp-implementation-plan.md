@@ -25,18 +25,18 @@
 
 ### What IS MVP (Must Have)
 
-| Feature | Description | Acceptance Criteria |
-|---------|-------------|---------------------|
-| **Course Selection** | List available courses with metadata | User can view and select a course |
-| **AI Greeting** | Personalized welcome after course selection | AI greets user by name, explains course content |
-| **Theory Display** | Render structured learning content | Content shows concept, examples, practice tasks |
-| **Q&A Chatbot** | Context-aware AI chat during learning | Chatbot responds to questions about current session |
-| **Quiz System** | Multiple choice + code completion questions | Immediate validation and scoring |
-| **Progress Tracking** | Visual progress indicators | Progress bar and completion status visible |
-| **70% Passing Threshold** | Pass/fail logic for progression | Score >=70% unlocks next content |
-| **Prerequisite Review** | Triggered on failing quiz | Automatic recommendation when score <70% |
-| **Code Explanation** | AI explains code snippets | User can paste code and get explanation |
-| **3-Level Hints** | Progressive hint system | Gentle → Conceptual → Direct hints available |
+| Feature                   | Description                                 | Acceptance Criteria                                 |
+| ---------------------------| ---------------------------------------------| -----------------------------------------------------|
+| **Course Selection**      | List available courses with metadata        | User can view and select a course                   |
+| **AI Greeting**           | Personalized welcome after course selection | AI greets user by name, explains course content     |
+| **Theory Display**        | Render structured learning content          | Content shows concept, examples, practice tasks     |
+| **Q&A Chatbot**           | Context-aware AI chat during learning       | Chatbot responds to questions about current session |
+| **Quiz System**           | Multiple choice + code completion questions | Immediate validation and scoring                    |
+| **Progress Tracking**     | Visual progress indicators                  | Progress bar and completion status visible          |
+| **70% Passing Threshold** | Pass/fail logic for progression             | Score >=70% unlocks next content                    |
+| **Prerequisite Review**   | Triggered on failing quiz                   | Automatic recommendation when score <70%            |
+| **Code Explanation**      | AI explains code snippets                   | User can paste code and get explanation             |
+| **3-Level Hints**         | Progressive hint system                     | Gentle → Conceptual → Direct hints available        |
 
 ### What is NOT MVP (Post-MVP)
 

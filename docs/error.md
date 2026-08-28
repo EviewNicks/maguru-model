@@ -1,89 +1,56 @@
-(D:\conda_envs\maguru) PS D:\.maguru\maguru-model> flake8 . --exclude=.git,__pycache__,.claude,node_modules,...
->> 
-.\ai_chains\chains\__init__.py:12:1: E302 expected 2 blank lines, found 1
-def get_llm():
-^
-.\ai_chains\chains\ai_greeting.py:11:1: E302 expected 2 blank lines, found 1
-def _get_chain():
-^
-.\ai_chains\chains\ai_greeting.py:19:1: E302 expected 2 blank lines, found 1
-def _get_fallback_greeting(student_name: str, course_title: str) -> str:
-^
-.\ai_chains\chains\ai_greeting.py:33:1: E302 expected 2 blank lines, found 1
-def generate_greeting(student_name: str, course_metadata: dict) -> str:
-^
-.\ai_chains\chains\ai_greeting.py:63:5: F841 local variable 'e' is assigned to but never used
-    except Exception as e:
-    ^
-.\ai_chains\chains\explain_code.py:10:1: E302 expected 2 blank lines, found 1
-def _get_chain():
-^
-.\ai_chains\chains\explain_code.py:18:1: E302 expected 2 blank lines, found 1
-def explain_code(code_snippet: str) -> str:
-^
-.\ai_chains\chains\hint_generator.py:10:1: E302 expected 2 blank lines, found 1
-def _get_chain():
-^
-.\ai_chains\chains\hint_generator.py:18:1: E302 expected 2 blank lines, found 1
-def generate_hint(task: str, student_attempt: str, level: int) -> str:
-^
-.\ai_chains\chains\hint_generator.py:41:1: E302 expected 2 blank lines, found 1
-def get_all_hints(task: str, student_attempt: str) -> list:
-^
-.\ai_chains\chains\qa_chatbot.py:11:1: E302 expected 2 blank lines, found 1
-def _get_chain():
-^
-.\ai_chains\chains\qa_chatbot.py:21:1: E302 expected 2 blank lines, found 1
-def answer_question(question: str, session_title: str,
-^
-.\ai_chains\chains\qa_chatbot.py:22:20: E128 continuation line under-indented for visual indent
-                   session_content: str, chat_history: list) -> str:
-                   ^
-.\ai_chains\chains\qa_chatbot.py:47:1: E302 expected 2 blank lines, found 1
-def _format_history(messages: list) -> str:
-^
-.\ai_chains\chains\quiz_feedback.py:10:1: E302 expected 2 blank lines, found 1
-def _get_chain():
-^
-.\ai_chains\chains\quiz_feedback.py:18:1: E302 expected 2 blank lines, found 1
-def generate_feedback(question: str, student_answer: str,
-^
-.\ai_chains\chains\quiz_feedback.py:19:22: E128 continuation line under-indented for visual indent
-                     correct_answer: str, is_correct: bool) -> str:
-                     ^
-.\ai_chains\chains\quiz_feedback.py:40:5: F841 local variable 'e' is assigned to but never used  
-    except Exception as e:
-    ^
-.\server.py:14:1: F401 'asyncio' imported but unused
-import asyncio
-^
-.\server.py:15:1: F401 'typing.Optional' imported but unused
-from typing import Optional, AsyncGenerator
-^
-.\server.py:15:1: F401 'typing.AsyncGenerator' imported but unused
-from typing import Optional, AsyncGenerator
-^
-.\server.py:19:1: F401 'fastapi.responses.StreamingResponse' imported but unused
-from fastapi.responses import StreamingResponse
-^
-.\server.py:50:1: E302 expected 2 blank lines, found 1
-def _with_fallback(func, fallback_msg: str, **kwargs):
-^
-.\tests\test_ai_chains_simple.py:77:128: E501 line too long (164 > 127 characters)
-        "Variabel adalah wadah untuk menyimpan data. Di Python, membuat variabel sangat mudah - cukup tulis nama variabel diikuti tanda sama dengan (=) dan nilai.",
-                                                                                                 
-                              ^
-.\tests\test_ai_chains_simple.py:80:11: F541 f-string is missing placeholders
-    print(f"Question: Apa itu variabel?")
-          ^
-.\tests\test_ai_chains_simple.py:102:11: F541 f-string is missing placeholders
-    print(f"Student: Budi")
-          ^
-.\utils\quiz_validator.py:7:1: F401 'typing.Optional' imported but unused
-from typing import Dict, List, Any, Optional
-^
-.\utils\session_manager.py:9:1: F401 'typing.Optional' imported but unused
-from typing import Dict, List, Optional
-^
-28
-(D:\conda_envs\maguru) PS D:\.maguru\maguru-model> 
+LANGSERVE:  └──> /quiz-feedback/playground/
+LANGSERVE:
+LANGSERVE: See all available routes at /docs/
+INFO:     Application startup complete.
+INFO:watchfiles.main:5 changes detected
+INFO:watchfiles.main:5 changes detected
+INFO:watchfiles.main:1 change detected
+INFO:watchfiles.main:3 changes detected
+INFO:watchfiles.main:1 change detected
+INFO:watchfiles.main:3 changes detected
+INFO:watchfiles.main:5 changes detected
+INFO:     127.0.0.1:50475 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62752 - "GET /chatbot/playground/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62752 - "GET /chatbot/playground/assets/index-400979f0.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58715 - "GET /chatbot/playground/assets/index-52e8ab2f.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "GET /chatbot/playground/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "GET /chatbot/playground/assets/index-400979f0.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63288 - "GET /chatbot/playground/assets/index-52e8ab2f.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "GET /chatbot/playground/favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "POST /chatbot/stream_log HTTP/1.1" 200 OK
+D:\conda_envs\maguru\Lib\site-packages\sse_starlette\sse.py:245: LangChainDeprecationWarning: astream_log is deprecated. Use astream instead.
+  async for data in self.body_iterator:
+INFO:app.db.checkpointer:Initialized LangGraph InMemorySaver checkpointer.
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 404 Not Found"
+ERROR:app.graphs.qa_graph:Error invoking LLM in qa_graph: Error code: 404 - {'error': {'message': 'No endpoints found for arcee-ai/trinity-mini:free.', 'code': 404}, 'user_id': 'user_2yj39fGOELlTlO6AcLdeMIYF93W'}
+Traceback (most recent call last):
+  File "D:\.maguru\maguru-model\app\graphs\qa_graph.py", line 96, in generate_answer_node
+    response = llm.invoke(conversation_messages)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 476, in invoke
+    self.generate_prompt(
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 1849, in generate_prompt
+    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 1656, in generate
+    self._generate_with_cache(
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 1953, in _generate_with_cache
+    for chunk in self._stream(messages, stop=stop, **kwargs):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_openai\chat_models\base.py", line 1367, in _stream
+    _handle_openai_api_error(e)
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_openai\chat_models\base.py", line 1340, in _stream
+    response = self.client.create(**payload)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\_utils\_utils.py", line 286, in wrapper        
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1147, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))        
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\_base_client.py", line 1047, in request        
+    raise self._make_status_error_from_response(err.response) from None
+openai.NotFoundError: Error code: 404 - {'error': {'message': 'No endpoints found for arcee-ai/trinity-mini:free.', 'code': 404}, 'user_id': 'user_2yj39fGOELlTlO6AcLdeMIYF93W'}
