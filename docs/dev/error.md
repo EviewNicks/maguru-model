@@ -1,63 +1,56 @@
-(base) PS D:\.maguru\maguru-model> conda activate D:\conda_envs\maguru
-(D:\conda_envs\maguru) PS D:\.maguru\maguru-model> uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-INFO:     Will watch for changes in these directories: ['D:\\.maguru\\maguru-model']
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [22016] using WatchFiles
-Process SpawnProcess-1:
+LANGSERVE:  └──> /quiz-feedback/playground/
+LANGSERVE:
+LANGSERVE: See all available routes at /docs/
+INFO:     Application startup complete.
+INFO:watchfiles.main:5 changes detected
+INFO:watchfiles.main:5 changes detected
+INFO:watchfiles.main:1 change detected
+INFO:watchfiles.main:3 changes detected
+INFO:watchfiles.main:1 change detected
+INFO:watchfiles.main:3 changes detected
+INFO:watchfiles.main:5 changes detected
+INFO:     127.0.0.1:50475 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62752 - "GET /chatbot/playground/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62752 - "GET /chatbot/playground/assets/index-400979f0.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58715 - "GET /chatbot/playground/assets/index-52e8ab2f.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "GET /chatbot/playground/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "GET /chatbot/playground/assets/index-400979f0.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63288 - "GET /chatbot/playground/assets/index-52e8ab2f.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "GET /chatbot/playground/favicon.ico HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54388 - "POST /chatbot/stream_log HTTP/1.1" 200 OK
+D:\conda_envs\maguru\Lib\site-packages\sse_starlette\sse.py:245: LangChainDeprecationWarning: astream_log is deprecated. Use astream instead.
+  async for data in self.body_iterator:
+INFO:app.db.checkpointer:Initialized LangGraph InMemorySaver checkpointer.
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 404 Not Found"
+ERROR:app.graphs.qa_graph:Error invoking LLM in qa_graph: Error code: 404 - {'error': {'message': 'No endpoints found for arcee-ai/trinity-mini:free.', 'code': 404}, 'user_id': 'user_2yj39fGOELlTlO6AcLdeMIYF93W'}
 Traceback (most recent call last):
-  File "D:\conda_envs\maguru\Lib\multiprocessing\process.py", line 314, in _bootstrap
-    self.run()
-  File "D:\conda_envs\maguru\Lib\multiprocessing\process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-  File "D:\conda_envs\maguru\Lib\site-packages\uvicorn\_subprocess.py", line 80, in subprocess_started
-    target(sockets=sockets)
-  File "D:\conda_envs\maguru\Lib\site-packages\uvicorn\server.py", line 67, in run
-    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\conda_envs\maguru\Lib\asyncio\runners.py", line 195, in run
-    return runner.run(main)
-           ^^^^^^^^^^^^^^^^
-  File "D:\conda_envs\maguru\Lib\asyncio\runners.py", line 118, in run
-    return self._loop.run_until_complete(task)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\conda_envs\maguru\Lib\asyncio\base_events.py", line 691, in run_until_complete
-    return future.result()
-           ^^^^^^^^^^^^^^^
-  File "D:\conda_envs\maguru\Lib\site-packages\uvicorn\server.py", line 71, in serve
-    await self._serve(sockets)
-  File "D:\conda_envs\maguru\Lib\site-packages\uvicorn\server.py", line 78, in _serve
-    config.load()
-  File "D:\conda_envs\maguru\Lib\site-packages\uvicorn\config.py", line 439, in load
-    self.loaded_app = import_from_string(self.app)
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\conda_envs\maguru\Lib\site-packages\uvicorn\importer.py", line 22, in import_from_string
-    raise exc from None
-  File "D:\conda_envs\maguru\Lib\site-packages\uvicorn\importer.py", line 19, in import_from_string
-    module = importlib.import_module(module_str)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\conda_envs\maguru\Lib\importlib\__init__.py", line 90, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
-  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-  File "D:\.maguru\maguru-model\app\main.py", line 8, in <module>
-    from app.api.router import api_router
-  File "D:\.maguru\maguru-model\app\api\__init__.py", line 2, in <module>
-    from .router import api_router
-  File "D:\.maguru\maguru-model\app\api\router.py", line 2, in <module>
-    from app.api.v1.router import api_v1_router
-  File "D:\.maguru\maguru-model\app\api\v1\__init__.py", line 2, in <module>
-    from .router import api_v1_router
-  File "D:\.maguru\maguru-model\app\api\v1\router.py", line 2, in <module>
-    from app.api.v1.endpoints import health, ingest, chat, quiz
-  File "D:\.maguru\maguru-model\app\api\v1\endpoints\ingest.py", line 3, in <module>
-    from app.services.rag_service import ingest_document, ingest_text_content
-  File "D:\.maguru\maguru-model\app\services\__init__.py", line 2, in <module>
-    from .rag_service import ingest_document, get_course_context
-  File "D:\.maguru\maguru-model\app\services\rag_service.py", line 5, in <module>
-    from langchain_community.document_loaders import PyPDFLoader, TextLoader
-ModuleNotFoundError: No module named 'langchain_community'
+  File "D:\.maguru\maguru-model\app\graphs\qa_graph.py", line 96, in generate_answer_node
+    response = llm.invoke(conversation_messages)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 476, in invoke
+    self.generate_prompt(
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 1849, in generate_prompt
+    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 1656, in generate
+    self._generate_with_cache(
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_core\language_models\chat_models.py", line 1953, in _generate_with_cache
+    for chunk in self._stream(messages, stop=stop, **kwargs):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_openai\chat_models\base.py", line 1367, in _stream
+    _handle_openai_api_error(e)
+  File "D:\conda_envs\maguru\Lib\site-packages\langchain_openai\chat_models\base.py", line 1340, in _stream
+    response = self.client.create(**payload)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\_utils\_utils.py", line 286, in wrapper        
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1147, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))        
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\conda_envs\maguru\Lib\site-packages\openai\_base_client.py", line 1047, in request        
+    raise self._make_status_error_from_response(err.response) from None
+openai.NotFoundError: Error code: 404 - {'error': {'message': 'No endpoints found for arcee-ai/trinity-mini:free.', 'code': 404}, 'user_id': 'user_2yj39fGOELlTlO6AcLdeMIYF93W'}
