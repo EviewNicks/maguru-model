@@ -1,87 +1,63 @@
-Ran command: `Get-Content "D:\.maguru\maguru-model\docs\SERVER_RUNNING_GUIDE.md"`
 
-Membaca isi file `docs/SERVER_RUNNING_GUIDE.md`...
-
-Berikut adalah penjelasan lengkap dan panduan praktis berdasarkan dokumen [**`docs/SERVER_RUNNING_GUIDE.md`**](file:///D:/.maguru/maguru-model/docs/SERVER_RUNNING_GUIDE.md) untuk menjalankan dan menguji (*manual testing*) apakah backend AI **`maguru-model`** dan endpoint **LangServe / FastAPI** berjalan dengan baik:
+Kami telah menambahkan **Log Tracing & Debugging Komprehensif (End-to-End Traceability)** di seluruh lapisan sistem (dari **Frontend Next.js ➔ LangServe API ➔ Backend LCEL ➔ LLM Model Pool**):
 
 ---
 
-## 🚀 1. Cara Menjalankan Server AI Backend
+### 🔍 Ringkasan Titik Log Baru (*Trace Points Map*):
 
-Untuk menjalankan server AI, Anda membutuhkan terminal (PowerShell atau Command Prompt) dengan langkah-langkah berikut:
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 🧑‍💻 Siswa (Browser)
+    participant Hook as 🎣 useChatbot Hook
+    participant API as 🌐 LangServe Client
+    participant PyAPI as 🐍 FastAPI (/chatbot/stream)
+    participant Chain as ⚙️ qa_chatbot.py
+    participant LLM as 🤖 LLM Model Pool
 
-### Langkah A: Aktifkan Conda Environment
-Karena seluruh library Python (`langchain`, `langgraph`, `langserve`, `fastapi`) terpasang pada Conda environment `maguru`:
-```powershell
-conda activate D:\conda_envs\maguru
+    User->>Hook: Klik Kirim Pesan
+    Note over Hook: 🚀 [FRONTEND_CHAT] Request Dispatched (ThreadID, CourseID)
+    Hook->>API: streamChatbotGenerator()
+    Note over API: 📡 [LangServeAPI] Starting Generator Stream
+    API->>PyAPI: POST /chatbot/stream (SSE)
+    PyAPI->>Chain: Preprocessing Input
+    Note over Chain: 📥 [BACKEND_QA][INPUT_RECEIVED] (Question, Session)
+    Note over Chain: 📚 [BACKEND_QA][RAG_LOOKUP] (Course Context Size)
+    Chain->>LLM: Native LCEL Stream
+    Note over LLM: ⏱️ [LLM_POOL] Active Model Candidate (Timeout 12s)
+    LLM-->>Chain: Token Chunks (1, 2, 3...)
+    Chain-->>PyAPI: SSE event: data
+    PyAPI-->>API: Streamed Event Chunks
+    API-->>Hook: Yield Token Chunk
+    Note over Hook: ⚡ [FRONTEND_CHAT] First Token Received (TTFT: ms)
+    Note over Hook: 🌊 [FRONTEND_CHAT] Accumulating Chunks (Real-time)
+    Hook-->>User: Render Gelembung Chat Mengalir
+    Note over Hook: ✅ [FRONTEND_CHAT] Stream Completed (Total Chunks, Duration)
 ```
 
-### Langkah B: Masuk ke Folder Project
-```powershell
-cd D:\.maguru\maguru-model
-```
+---
 
-### Langkah C: Jalankan Server
-Gunakan launcher script:
-```powershell
-python server.py
-```
-*(Atau gunakan perintah uvicorn langsung:* `uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`*)*
+### 🛠️ Rincian Log yang Ditambahkan:
 
-✅ Server akan aktif di **`http://localhost:8000`**.
+#### 1. Lapisan Frontend ([`useChatbot.ts`](file:///d:/.maguru/maguru/features/langserve/chatbot/hooks/useChatbot.ts))
+* 🚀 **`[FRONTEND_CHAT] Request Dispatched to AI Backend`**: Menampilkan `threadId`, `courseId`, `sessionTitle`, dan potongan pertanyaan.
+* ⚡ **`[FRONTEND_CHAT] First Token Received`**: Menghitung secara otomatis *Time-To-First-Token* (TTFT dalam milidetik).
+* ✅ **`[FRONTEND_CHAT] Stream Completed`**: Menampilkan ringkasan total potongan (*chunks*), jumlah karakter teks balasan, dan durasi total *streaming*.
+* 🧹 **`[FRONTEND_CHAT] Chat history cleared`**: Mencatat saat pengguna me-reset chat dan membuat `thread_id` sesi baru.
+
+#### 2. Lapisan Backend AI ([`qa_chatbot.py`](file:///D:/.maguru/maguru-model/app/chains/qa_chatbot.py))
+* 📥 **`[BACKEND_QA][INPUT_RECEIVED]`**: Mencatat request yang masuk ke server Python beserta parameter lengkap.
+* 📚 **`[BACKEND_QA][RAG_LOOKUP]`**: Menampilkan status pencarian materi kursus di vector store dan panjang konteks yang disisipkan.
+* 🚀 **`[BACKEND_QA][PIPELINE_READY]`**: Mencatat durasi waktu pra-pemrosesan (dalam ms) sebelum dialirkan ke LLM.
+
+#### 3. Lapisan Provider LLM ([`llm.py`](file:///D:/.maguru/maguru-model/app/core/llm.py))
+* 🛡️ **`[LLM_POOL]`**: Inisialisasi pool model cepat (`cohere/north-mini-code:free`, `minimax/minimax-m3:free`, `dots-studio/dots-3-note-preview:free`) dengan proteksi **Timeout 12 Detik** dan **Max Retries 1**.
+* 🔄 **`[LLM_INIT]`**: Mencatat failover otomatis jika model utama sedang antre.
 
 ---
 
-## 🧪 2. Cara Melakukan Manual Testing (4 Metode)
-
-Ada **4 cara praktis** untuk menguji apakah seluruh chain AI dan endpoint LangServe merespons dengan benar:
-
-### 🌟 Cara 1: Menggunakan LangServe Playground (Paling Visual & Interaktif)
-LangServe secara otomatis menyediakan UI antarmuka web khusus (*web playground*) untuk menguji AI tanpa perlu tool tambahan:
-* **Chatbot AI Co-Teacher**: Buka [`http://localhost:8000/chatbot/playground/`](http://localhost:8000/chatbot/playground/)
-* **Explain Code Chain**: Buka [`http://localhost:8000/explain-code/playground/`](http://localhost:8000/explain-code/playground/)
-* **Hint Generator**: Buka [`http://localhost:8000/hint/playground/`](http://localhost:8000/hint/playground/)
-* **Quiz Feedback**: Buka [`http://localhost:8000/quiz-feedback/playground/`](http://localhost:8000/quiz-feedback/playground/)
-
-> **Cara tes:** Buka URL di browser, ketik pertanyaan/soal pada form input, lalu klik tombol **Start Streaming** atau **Invoke**. Anda akan melihat respons AI muncul secara langsung.
-
----
-
-### 📋 Cara 2: Menggunakan Swagger UI (FastAPI Interactive Docs)
-Untuk menguji endpoint REST API lengkap (termasuk SSE Streaming, Generate Quiz, dan Ingestion):
-1. Buka browser ke **[`http://localhost:8000/docs`](http://localhost:8000/docs)**.
-2. Anda akan melihat seluruh daftar endpoint:
-   - `GET /health` : Cek apakah server online (respons: `{"status": "ok"}`).
-   - `POST /api/v1/chat/invoke` : Uji chat Q&A dengan thread persistence.
-   - `POST /api/v1/generate-quiz` : Uji pembuatan soal kuis otomatis.
-   - `POST /api/v1/ingest` : Uji input materi teks ke knowledge base RAG.
-3. Klik endpoint ➔ klik **Try it out** ➔ isi parameter JSON ➔ klik **Execute**.
-
----
-
-### 📬 Cara 3: Menggunakan Postman Collection
-Jika Anda lebih terbiasa menggunakan aplikasi **Postman**:
-1. Buka aplikasi Postman.
-2. Klik tombol **Import** (di pojok kiri atas).
-3. Pilih file koleksi yang sudah disiapkan di:  
-   [`D:\.maguru\maguru-model\postman\maguru_ai_postman_collection.json`](file:///D:/.maguru/maguru-model/postman/maguru_ai_postman_collection.json).
-4. Seluruh request endpoint sudah tersusun rapi dengan contoh payload body yang siap dieksekusi.
-
----
-
-### ⚡ Cara 4: Menggunakan Automated Unit Test (`pytest`)
-Untuk memastikan semua logika internal, skema data, dan integrasi chain berfungsi tanpa mengonsumsi kuota token LLM (menggunakan mocking):
-```powershell
-python -m pytest tests/ -v
-```
-*(Saat ini seluruh 18 test telah terkonfigurasi dan 100% PASS).*
-
----
-
-## 🛠️ Ringkasan Troubleshooting
-
-| Gejala Error | Penyebab | Solusi |
-|---|---|---|
-| `ModuleNotFoundError` | Environment Conda belum aktif | Jalankan `conda activate D:\conda_envs\maguru` |
-| `Address already in use` | Port 8000 sedang digunakan aplikasi lain | Matikan aplikasi lain di port 8000 atau ubah nilai `PORT` di `.env` |
-| `500 Internal Server Error` saat invoke | Kunci API OpenRouter belum diisi / expired | Periksa isi parameter `OPENROUTER_API_KEY` di file `.env` |
+### 🧪 Cara Melihat Alur Prosesnya Secara Live:
+1. Buka halaman belajar di browser **`http://localhost:3001/course/[slug]/learn`**.
+2. Buka **DevTools Console** browser (`F12` ➔ Tab *Console*).
+3. Buka jendela terminal backend `maguru-model` di samping browser.
+4. Kirim pertanyaan ke **AI Co-Teacher**. Anda akan melihat log alur dari tombol diklik hingga token kata per kata mengalir masuk ke UI secara terperinci dan transparan!

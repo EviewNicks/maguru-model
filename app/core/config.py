@@ -1,4 +1,4 @@
-﻿import os
+import os
 from typing import List
 
 try:
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     HOST: str = "0.0.0.0"
     PORT: int = 8000
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002"
 
     # AI & LLM Providers (OpenRouter Model Pool & Fallbacks)
     OPENROUTER_API_KEY: str = ""
@@ -48,7 +48,9 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> List[str]:
-        raw = self.ALLOWED_ORIGINS or "http://localhost:3000"
+        raw = self.ALLOWED_ORIGINS or "*"
+        if raw.strip() == "*":
+            return ["*"]
         return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
     @property
