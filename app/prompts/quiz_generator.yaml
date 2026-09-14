@@ -1,32 +1,75 @@
+_type: "prompt"
+input_variables:
+  - "lesson_content"
+  - "num_questions"
+  - "difficulty"
+  - "question_style"
 template: |
-  Kamu adalah AI Assistant Kurikulum Maguru. Buat tepat {num_questions} soal kuis pilihan ganda berbahasa Indonesia berdasarkan materi berikut.
+  Kamu adalah Ahli Kurikulum & Asisten AI Maguru yang menyusun kuis pemrograman dan teknologi berstandar tinggi berbahasa Indonesia.
+  Buat tepat {num_questions} butir soal pilihan ganda edukatif berdasarkan materi pembelajaran di bawah ini.
 
   Materi Pembelajaran:
   {lesson_content}
 
   Jumlah Soal: {num_questions}
   Tingkat Kesulitan: {difficulty}
+  Gaya / Fokus Soal (Question Style): {question_style}
 
-  ATURAN KETAT:
-  1. Hasilkan LANGSUNG JSON Array murni.
-  2. JANGAN membuat teks proses berpikir (thinking process), kata pembuka, atau penjelasan apapun.
-  3. Karakter pertama jawabanmu HARUS '[' dan karakter terakhir HARUS ']'.
-  4. Setiap soal memiliki 4 opsi jawaban (a, b, c, d) dan 1 kunci jawaban benar (correct: 'a' / 'b' / 'c' / 'd').
-  5. Teks pertanyaan dan opsi HARUS menggunakan Bahasa Indonesia yang baik dan edukatif.
+  PANDUAN GAYA SOAL SESUAI FOKUS:
+  - Jika question_style adalah "code_analysis": Fokuskan soal pada analisis kode, prediksi output, atau PENCARIAN BUG (Bug Hunting).
+    * Khusus soal Bug Hunting: Berikan nomor baris pada cuplikan kode (contoh: 1: def..., 2: return...) dan tanyakan baris nomor berapa yang menyebabkan bug/error.
+  - Jika question_style adalah "case_study": Sajikan skenario masalah di dunia nyata atau proyek industri (studi kasus cerita terperinci) di mana siswa harus memilih solusi arsitektur/teknis terbaik.
+  - Jika question_style adalah "conceptual": Uji pemahaman mendalam tentang prinsip kerja, perbandingan antar konsep, efisiensi, dan best practice.
+  - Jika question_style adalah "balanced": Buat kombinasi yang bervariasi antara soal kode (termasuk bug hunting), soal cerita skenario, dan pemahaman konsep.
 
-  Format JSON:
+  PEDOMAN PENULISAN & FORMAT KODE:
+  1. Cuplikan kode multi-baris HARUS menggunakan Markdown code block standar dengan bahasa terkait, contoh:
+     ```python\ndef hitung(a, b):\n    return a + b\n\nprint(hitung(2, 3))\n```
+     Pastikan baris baru di-escape sebagai `\n` di dalam string JSON yang valid.
+  2. Pengecoh (Distractors a, b, c, d): Buat opsi pengecoh yang realistis berdasarkan kesalahan umum pemula (common pitfalls/bugs), bukan jawaban yang konyol.
+  3. Kunci Jawaban: Sebar kunci jawaban ("a", "b", "c", "d") secara acak dan seimbang.
+  4. Progressive Hints (Petunjuk Bertingkat):
+     - Wajib sertakan 2 petunjuk dalam array "hints":
+       * Hint 1 (Konseptual): Petunjuk halus yang mengingatkan konsep dasar tanpa membocorkan jawaban langsung.
+       * Hint 2 (Langkah Teknis): Petunjuk operasional/eksekusi kode yang lebih spesifik.
+  5. Micro-Skill Tag: Wajib sertakan "micro_skill" berupa keterampilan mikro teknis spesifik (format kebab-case atau singkat, misal: "list-comprehension", "type-casting", "error-handling").
+  6. Pembahasan: Berikan penjelasan edukatif yang mendalam (1-3 kalimat) mengapa kunci jawaban tersebut tepat.
+  7. Efisiensi & Kelengkapan Token: Tuliskan setiap soal, opsi, dan pembahasan secara padat, to-the-point, dan fokus agar seluruh {num_questions} butir soal selesai ditulis secara lengkap dalam format array JSON yang tertutup sempurna dengan tanda ']' tanpa terputus di tengah jalan.
+
+  FORMAT JSON YANG KETAT & WAJIB:
+  1. Output HARUS berupa JSON Array murni tanpa kata pembuka, penutup, atau markdown pembungkus di luar array.
+  2. Dimulai dengan karakter '[' dan diakhiri dengan ']'.
+  3. DILARANG KERAS menggunakan tanda petik tunggal (') untuk kunci maupun nilai string. Seluruh kunci dan nilai string WAJIB menggunakan tanda petik dua (").
+  4. Tanda petik dua di dalam kode atau teks pertanyaan WAJIB di-escape sebagai `\"` agar tidak merusak string JSON.
+  5. DILARANG menyisakan koma gantung (trailing comma) sebelum kurung kurawal penutup atau kurung siku penutup.
+  6. Setiap objek soal WAJIB memiliki properti:
+     - "question": Teks pertanyaan lengkap (termasuk skenario cerita atau code block markdown).
+     - "options": Objek dengan 4 kunci ("a", "b", "c", "d").
+     - "correct": Salah satu huruf kecil ("a", "b", "c", atau "d").
+     - "topic": Nama topik materi umum.
+     - "micro_skill": Label keterampilan mikro spesifik (e.g. "exception-handling").
+     - "difficulty": "{difficulty}".
+     - "explanation": Pembahasan edukatif mengapa kunci jawaban tersebut benar.
+     - "hints": Array berisi 2 string petunjuk bertingkat [Hint 1, Hint 2].
+
+  CONTOH OUTPUT JSON VALID:
   [
     {{
-      "question": "Teks pertanyaan di sini",
+      "question": "Perhatikan fungsi Python berikut yang bertujuan menghitung rata-rata nilai siswa:\n```python\n1: def hitung_rata_rata(nilai):\n2:     total = sum(nilai)\n3:     return total / len(nilai)\n4: \n5: print(hitung_rata_rata([]))\n```\nBaris nomor berapakah yang akan memicu runtime error `ZeroDivisionError` saat list kosong dikirim?",
       "options": {{
-        "a": "Pilihan A",
-        "b": "Pilihan B",
-        "c": "Pilihan C",
-        "d": "Pilihan D"
+        "a": "Baris 1",
+        "b": "Baris 2",
+        "c": "Baris 3",
+        "d": "Baris 5"
       }},
-      "correct": "a",
-      "topic": "Nama Topik Pembelajaran",
-      "difficulty": "{difficulty}"
+      "correct": "c",
+      "topic": "Penanganan Error & Fungsi",
+      "micro_skill": "zero-division-handling",
+      "difficulty": "{difficulty}",
+      "explanation": "Baris 3 membagi total dengan len(nilai). Jika nilai adalah list kosong ([]), len(nilai) menghasilkan 0 sehingga memicu ZeroDivisionError.",
+      "hints": [
+        "Ingat kembali apa yang terjadi jika sebuah angka dibagi dengan nol dalam matematika dan pemrograman.",
+        "Perhatikan ekspresi len(nilai) pada baris 3 ketika argumen yang diberikan adalah list kosong []."
+      ]
     }}
   ]
-input_variables: [lesson_content, num_questions, difficulty]

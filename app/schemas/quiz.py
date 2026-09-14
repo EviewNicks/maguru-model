@@ -1,4 +1,4 @@
-﻿from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 class QuizOptionsSchema(BaseModel):
@@ -13,12 +13,17 @@ class QuizQuestionSchema(BaseModel):
     correct: str = Field(..., description="Kunci jawaban: a, b, c, atau d")
     topic: str = Field(..., description="Topik/subtopik materi")
     difficulty: str = Field("medium", description="Tingkat kesulitan: easy, medium, hard")
+    explanation: Optional[str] = Field("", description="Pembahasan singkat mengapa kunci jawaban benar")
+    hints: List[str] = Field(default_factory=list, description="Petunjuk bertingkat untuk siswa (Hint 1 & Hint 2)")
+    micro_skill: Optional[str] = Field("general", description="Subtopik/kompetensi mikro teknis yang diuji")
 
 class GenerateQuizRequestSchema(BaseModel):
     course_id: str = Field("umum", description="CUID atau ID unik kursus")
+    course_title: Optional[str] = Field("", description="Judul kursus atau bab yang ramah dibaca manusia")
     section_id: str = Field("", description="CUID section (opsional)")
     num_questions: int = Field(5, description="Jumlah soal kuis yang diminta")
     difficulty: str = Field("medium", description="Tingkat kesulitan kuis: easy, medium, hard")
+    question_style: str = Field("balanced", description="Gaya/archetype soal: balanced, code_analysis, case_study, conceptual")
     lesson_content: str = Field("", description="Teks materi langsung dari lesson jika tidak dari vectorstore")
 
 class GenerateQuizResponseSchema(BaseModel):

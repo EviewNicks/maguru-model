@@ -13,9 +13,11 @@ async def generate_quiz_endpoint(payload: GenerateQuizRequestSchema = Body(...))
     try:
         questions = generate_quiz_questions(
             course_id=payload.course_id,
+            course_title=payload.course_title,
             section_id=payload.section_id,
             num_questions=payload.num_questions,
             difficulty=payload.difficulty,
+            question_style=payload.question_style,
             lesson_content=payload.lesson_content
         )
         return GenerateQuizResponseSchema(
