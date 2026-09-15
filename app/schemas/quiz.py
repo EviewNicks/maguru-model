@@ -21,6 +21,7 @@ class GenerateQuizRequestSchema(BaseModel):
     course_id: str = Field("umum", description="CUID atau ID unik kursus")
     course_title: Optional[str] = Field("", description="Judul kursus atau bab yang ramah dibaca manusia")
     section_id: str = Field("", description="CUID section (opsional)")
+    lesson_id: Optional[str] = Field(None, description="CUID materi spesifik jika ingin menargetkan kuis pada 1 materi saja")
     num_questions: int = Field(5, description="Jumlah soal kuis yang diminta")
     difficulty: str = Field("medium", description="Tingkat kesulitan kuis: easy, medium, hard")
     question_style: str = Field("balanced", description="Gaya/archetype soal: balanced, code_analysis, case_study, conceptual")

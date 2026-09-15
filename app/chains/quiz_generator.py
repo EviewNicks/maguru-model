@@ -10,7 +10,7 @@ from langchain_core.runnables import RunnableLambda
 from langchain_openai import ChatOpenAI
 from app.core.config import settings
 from app.core.llm import get_llm_pool
-from app.services.rag_service import get_course_context
+from app.services.rag_service import get_course_context, get_proportional_course_context
 from app.schemas.quiz import GenerateQuizRequestSchema
 
 logger = logging.getLogger(__name__)
@@ -247,6 +247,14 @@ def _validate_and_normalize_question(q: Dict[str, Any], default_diff: str = "med
         return None
 
     question_text = str(q.get("question", "")).strip()
+    if not question_text:
+        return None
+
+    # Anti-leak: Sanitize any leaked lesson delimiters or internal metadata
+    question_text = re.sub(r'===+\s*Materi\s*\d*.*?\s*===+', '', question_text, flags=re.IGNORECASE).strip()
+    question_text = re.sub(r'^(?:Berdasarkan|Sesuai dengan|Mengacu pada)\s+materi(?:\s+\d+|\s+di atas)?(?:,|\s*:\s*)?\s*', '', question_text, flags=re.IGNORECASE).strip()
+    # Strip standalone raw UUIDs or CUIDs if leaked
+    question_text = re.sub(r'\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b', '', question_text).strip()
     if not question_text:
         return None
 
@@ -537,7 +545,8 @@ def generate_quiz_questions(
     num_questions: int = 5,
     difficulty: str = "medium",
     question_style: str = "balanced",
-    lesson_content: Optional[str] = None
+    lesson_content: Optional[str] = None,
+    lesson_id: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """Generate structured quiz assessment questions based on course/lesson content with multi-model fallback."""
     safe_course_id = _sanitize_input(course_id, max_len=100) or "umum"
@@ -546,15 +555,43 @@ def generate_quiz_questions(
     valid_styles = ("balanced", "code_analysis", "case_study", "conceptual")
     safe_question_style = question_style.lower() if question_style.lower() in valid_styles else "balanced"
 
+    # Dynamic multi-angle semantic query tailored to question_style & topic
+    style_keywords = {
+        "code_analysis": "kode program implementasi syntax output bug error tracing variable",
+        "case_study": "studi kasus skenario masalah penerapan problem solving use case best practice",
+        "conceptual": "konsep teori definisi arsitektur prinsip kerja perbedaan perbandingan",
+        "balanced": "konsep inti sintaksis kode contoh logika implementasi pemecahan masalah"
+    }
+    style_query = style_keywords.get(safe_question_style, "konsep inti dan kode")
+    semantic_query = f"{display_title} {style_query}"
+
     content_for_prompt = ""
+    # 1. Prioritize explicit user notes if non-empty
     if lesson_content and lesson_content.strip():
         content_for_prompt = _sanitize_input(lesson_content, max_len=3500)
     else:
+        # 2. RAG Retrieval from Supabase PGVector
         try:
-            content_for_prompt = get_course_context(course_id=safe_course_id, query="quiz materi konsep dasar", top_k=4)
+            if not section_id and not lesson_id:
+                # Proportional sampling across entire course for Pre-Test
+                content_for_prompt = get_proportional_course_context(
+                    course_id=safe_course_id,
+                    query=semantic_query,
+                    max_chunks=6
+                )
+            else:
+                # Scoped retrieval for section or specific lesson
+                content_for_prompt = get_course_context(
+                    course_id=safe_course_id,
+                    query=semantic_query,
+                    top_k=5,
+                    section_id=section_id,
+                    lesson_id=lesson_id
+                )
         except Exception as e:
             logger.warning(f"RAG context retrieval for quiz generator fallback: {str(e)}")
 
+    # 3. Dual-tier fallback
     if not content_for_prompt or not content_for_prompt.strip():
         content_for_prompt = f"Materi pembelajaran mencakup topik '{display_title}' dengan fokus pada konsep dasar pemrograman, penanganan error, struktur data, dan best practice industri."
 
@@ -616,6 +653,7 @@ def create_quiz_generator_chain():
             cid = input_data.get("course_id", "umum")
             ctitle = input_data.get("course_title", None)
             sid = input_data.get("section_id", None)
+            lid = input_data.get("lesson_id", None)
             nq = input_data.get("num_questions", 5)
             diff = input_data.get("difficulty", "medium")
             qs = input_data.get("question_style", "balanced")
@@ -624,6 +662,7 @@ def create_quiz_generator_chain():
             cid = getattr(input_data, "course_id", "umum")
             ctitle = getattr(input_data, "course_title", None)
             sid = getattr(input_data, "section_id", None)
+            lid = getattr(input_data, "lesson_id", None)
             nq = getattr(input_data, "num_questions", 5)
             diff = getattr(input_data, "difficulty", "medium")
             qs = getattr(input_data, "question_style", "balanced")
@@ -641,7 +680,8 @@ def create_quiz_generator_chain():
             num_questions=nq,
             difficulty=diff,
             question_style=qs,
-            lesson_content=lc
+            lesson_content=lc,
+            lesson_id=lid
         )
         return {"status": "success", "course_id": cid, "questions": questions}
     return RunnableLambda(invoke).with_types(input_type=GenerateQuizRequestSchema)
