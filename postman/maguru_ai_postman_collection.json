@@ -1,0 +1,128 @@
+{
+  "info": {
+    "_postman_id": "a41d118b-maguru-ai-backend-collection",
+    "name": "Maguru AI Backend API Collection",
+    "description": "Postman API Collection for testing Maguru AI Model FastAPI & LangServe endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "GET Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "GET Root Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quiz & Ingestion (API V1)",
+      "item": [
+        {
+          "name": "POST Generate Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course_id\": \"clx1234567890\",\n  \"section_id\": \"sec9876543210\",\n  \"num_questions\": 5,\n  \"difficulty\": \"medium\",\n  \"lesson_content\": \"Python adalah bahasa pemrograman yang serbaguna dan mudah dipelajari.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/generate-quiz",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "generate-quiz"]
+            }
+          }
+        },
+        {
+          "name": "POST Ingest Text Content",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course_id\": \"clx1234567890\",\n  \"section_id\": \"sec9876543210\",\n  \"lesson_id\": \"les1122334455\",\n  \"content\": \"Variabel dalam Python tidak memerlukan deklarasi tipe data eksplisit.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/ingest",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ingest"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "LangServe SSE Endpoints",
+      "item": [
+        {
+          "name": "POST Chatbot Invoke",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input\": {\n    \"question\": \"Jelaskan cara kerja percabangan if else di Python\",\n    \"session_title\": \"Percabangan Kondisional\",\n    \"session_content\": \"if x > 5: print('Besar')\",\n    \"chat_history\": [],\n    \"course_id\": \"clx1234567890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chatbot/invoke",
+              "host": ["{{base_url}}"],
+              "path": ["chatbot", "invoke"]
+            }
+          }
+        },
+        {
+          "name": "POST Generate Quiz LangServe Invoke",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input\": {\n    \"course_id\": \"clx1234567890\",\n    \"num_questions\": 3,\n    \"difficulty\": \"easy\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/generate-quiz/invoke",
+              "host": ["{{base_url}}"],
+              "path": ["generate-quiz", "invoke"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}

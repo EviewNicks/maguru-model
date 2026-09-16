@@ -44,7 +44,7 @@ jobs:
       run: |
         echo "Checking syntax for main files..."
         python -m py_compile server.py || echo "server.py syntax check failed"
-        python -m py_compile app.py || echo "app.py syntax check failed"
+        [ -f app.py ] && python -m py_compile app.py || echo "app.py not found, skipping"
         
         echo "Checking syntax for ai_chains..."
         find ai_chains -name "*.py" -type f ! -path "*/notebooks/*" -exec python -m py_compile {} \; || true
@@ -80,7 +80,9 @@ jobs:
         # Fallback to manual test if no pytest tests found
         if [ "$TEST_FOUND" = false ]; then
           echo "No pytest test directories found, running manual test..."
-          if [ -f "test_ai_chains_simple.py" ]; then
+          if [ -f "tests/test_ai_chains_simple.py" ]; then
+            python tests/test_ai_chains_simple.py
+          elif [ -f "test_ai_chains_simple.py" ]; then
             python test_ai_chains_simple.py
           else
             echo "No test files found. Skipping tests."
