@@ -685,3 +685,5 @@ def create_quiz_generator_chain():
         )
         return {"status": "success", "course_id": cid, "questions": questions}
     return RunnableLambda(invoke).with_types(input_type=GenerateQuizRequestSchema)
+
+# reload trigger 1789739013.2247555

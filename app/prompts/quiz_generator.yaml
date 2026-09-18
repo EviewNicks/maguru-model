@@ -39,8 +39,14 @@ template: |
        * Hint 1 (Konseptual): Petunjuk halus yang mengingatkan konsep dasar tanpa membocorkan jawaban langsung.
        * Hint 2 (Langkah Teknis): Petunjuk operasional/eksekusi kode yang lebih spesifik.
   5. Micro-Skill Tag: Wajib sertakan "micro_skill" berupa keterampilan mikro teknis spesifik (format kebab-case atau singkat, misal: "list-comprehension", "type-casting", "error-handling").
-  6. Pembahasan: Berikan penjelasan edukatif yang mendalam (1-3 kalimat) mengapa kunci jawaban tersebut tepat. Jika konteks materi memiliki header '### Materi: [Judul]', sertakan rujukan materi asal di akhir pembahasan (contoh: "Konsep ini dibahas pada materi: ...").
-  7. Efisiensi & Kelengkapan Token: Tuliskan setiap soal, opsi, dan pembahasan secara padat, to-the-point, dan fokus agar seluruh {num_questions} butir soal selesai ditulis secara lengkap dalam format array JSON yang tertutup sempurna dengan tanda ']' tanpa terputus di tengah jalan.
+  6. Pembahasan Edukatif Mendalam (WAJIB Terstruktur, Komprehensif & Bebas Ambigu):
+     - DILARANG KERAS membuat pembahasan yang hanya 1 kalimat pendek atau ringkasan dangkal.
+     - Setiap butir soal WAJIB menyajikan penjelasan menyeluruh dan mudah dipahami dengan struktur:
+       (a) Analisis Kunci Jawaban: Ulas tuntas secara teknis dan logis mengapa opsi tersebut benar.
+       (b) Analisis Pengecoh (Distraktor): Jelaskan secara gamblang mengapa opsi lain keliru, jebakan pemikiran pemula apa yang sering terjadi, atau fungsi sebenarnya dari opsi-opsi keliru tersebut.
+       (c) Poin Pembelajaran (Takeaway): Tips praktis atau aturan penting yang perlu diingat siswa.
+     - Jika materi asal memiliki judul, cantumkan di akhir (contoh: "Rujukan Materi: ...").
+  7. Kelengkapan Output JSON: Seluruh {num_questions} butir soal harus selesai ditulis secara utuh dan valid di dalam array JSON yang tertutup rapi dengan tanda ']' tanpa terpotong.
 
   FORMAT JSON YANG KETAT & WAJIB:
   1. Output HARUS berupa JSON Array murni tanpa kata pembuka, penutup, atau markdown pembungkus di luar array.
@@ -53,9 +59,9 @@ template: |
      - "options": Objek dengan 4 kunci ("a", "b", "c", "d").
      - "correct": Salah satu huruf kecil ("a", "b", "c", atau "d").
      - "topic": Nama topik materi umum.
-     - "micro_skill": Label keterampilan mikro spesifik (e.g. "exception-handling").
+     - "micro_skill": Label keterampilan mikro spesifik (e.g. "zero-division-handling").
      - "difficulty": "{difficulty}".
-     - "explanation": Pembahasan edukatif mengapa kunci jawaban tersebut benar (sertakan rujukan nama materi jika ada).
+     - "explanation": Pembahasan edukatif terstruktur (Analisis Kunci, Analisis Pengecoh, dan Takeaway).
      - "hints": Array berisi 2 string petunjuk bertingkat [Hint 1, Hint 2].
 
   CONTOH OUTPUT JSON VALID:
@@ -72,7 +78,7 @@ template: |
       "topic": "Penanganan Error & Fungsi",
       "micro_skill": "zero-division-handling",
       "difficulty": "{difficulty}",
-      "explanation": "Baris 3 membagi total dengan len(nilai). Jika nilai adalah list kosong ([]), len(nilai) menghasilkan 0 sehingga memicu ZeroDivisionError.",
+      "explanation": "Baris 3 membagi variabel total dengan len(nilai). Ketika argumen yang dikirim adalah list kosong ([]), fungsi len(nilai) menghasilkan nilai 0. Operasi pembagian dengan angka nol tidak valid dalam matematika maupun komputasi sehingga Python memicu ZeroDivisionError.\n\nAnalisis Opsi Lain:\n- Baris 1: Merupakan sintaks pendefinisian fungsi yang valid dan tidak mengeksekusi kalkulasi.\n- Baris 2: Pemanggilan sum([]) pada list kosong akan menghasilkan angka 0 secara aman tanpa error.\n- Baris 5: Merupakan baris pemanggil fungsi, bukan tempat terjadinya operasi aritmetika pembagian.\n\nTakeaway: Selalu lakukan validasi panjang list (contoh: `if not nilai: return 0`) sebelum melakukan pembagian dengan len() agar program tidak mengalami crash.",
       "hints": [
         "Ingat kembali apa yang terjadi jika sebuah angka dibagi dengan nol dalam matematika dan pemrograman.",
         "Perhatikan ekspresi len(nilai) pada baris 3 ketika argumen yang diberikan adalah list kosong []."
