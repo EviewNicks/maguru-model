@@ -4,6 +4,7 @@
 import sys
 sys.path.insert(0, '.')
 
+
 def test_app_imports():
     """Verify that core app packages and routes import without errors."""
     from app.core.config import settings
@@ -20,7 +21,15 @@ def test_app_imports():
 
     assert settings.PROJECT_NAME == "Maguru AI API"
     assert app is not None
+    assert callable(get_llm)
+    assert callable(get_course_context)
+    assert callable(answer_question)
+    assert callable(explain_code)
+    assert callable(generate_hint)
+    assert callable(generate_feedback)
+    assert callable(generate_greeting)
     print("✅ All app package imports verified successfully!")
+
 
 if __name__ == "__main__":
     test_app_imports()

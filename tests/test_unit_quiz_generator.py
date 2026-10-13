@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-"""Unit tests with mocks for automated quiz generator chain."""
-
-import sys
-import pytest
 from unittest.mock import patch, MagicMock
-
-sys.path.insert(0, '.')
+import pytest
 
 from app.chains.quiz_generator import generate_quiz_questions, _extract_json_array, _sanitize_input
-from app.schemas.quiz import GenerateQuizRequestSchema, GenerateQuizResponseSchema
+
 
 def test_sanitize_input():
     """Test input sanitization and truncation."""
@@ -17,31 +11,44 @@ def test_sanitize_input():
     assert "\x00" not in cleaned
     assert len(cleaned) == 100
 
+
 def test_extract_json_array_valid():
     """Test parsing clean JSON array string."""
-    raw = '[{"question": "Q1", "options": {"a":"1","b":"2","c":"3","d":"4"}, "correct":"a", "topic":"T1", "difficulty":"easy"}]'
+    raw = (
+        '[{"question": "Q1", "options": {"a":"1","b":"2","c":"3","d":"4"}, '
+        '"correct":"a", "topic":"T1", "difficulty":"easy"}]'
+    )
     res = _extract_json_array(raw)
     assert len(res) == 1
     assert res[0]["question"] == "Q1"
 
+
 def test_extract_json_array_markdown_wrapped():
     """Test parsing markdown wrapped JSON."""
-    raw = '```json\n[{"question": "Q2", "options": {"a":"1","b":"2","c":"3","d":"4"}, "correct":"b", "topic":"T2", "difficulty":"medium"}]\n```'
+    raw = (
+        '```json\n[{"question": "Q2", "options": {"a":"1","b":"2","c":"3","d":"4"}, '
+        '"correct":"b", "topic":"T2", "difficulty":"medium"}]\n```'
+    )
     res = _extract_json_array(raw)
     assert len(res) == 1
     assert res[0]["question"] == "Q2"
+
 
 @patch("app.chains.quiz_generator._get_chain")
 def test_generate_quiz_questions_success(mock_get_chain):
     """Test quiz generation with mocked chain response."""
     mock_chain = MagicMock()
-    mock_chain.invoke.return_value = '[{"question": "Apa itu Python?", "options": {"a":"Bahasa","b":"Ular","c":"Mobil","d":"Game"}, "correct":"a", "topic":"Basics", "difficulty":"easy"}]'
+    mock_chain.invoke.return_value = (
+        '[{"question": "Apa itu Python?", "options": {"a":"Bahasa","b":"Ular","c":"Mobil","d":"Game"}, '
+        '"correct":"a", "topic":"Basics", "difficulty":"easy"}]'
+    )
     mock_get_chain.return_value = mock_chain
 
     questions = generate_quiz_questions(course_id="c123", lesson_content="Python dasar", num_questions=1)
     assert len(questions) == 1
     assert questions[0]["correct"] == "a"
     assert questions[0]["question"] == "Apa itu Python?"
+
 
 @patch("app.chains.quiz_generator._invoke_backup_model", return_value="")
 @patch("app.chains.quiz_generator._get_chain")
@@ -55,6 +62,7 @@ def test_generate_quiz_questions_fallback_on_error(mock_get_chain, mock_backup):
     assert len(questions) == 1
     assert "course-err" in questions[0]["question"]
     assert questions[0]["difficulty"] == "hard"
+
 
 @patch("app.chains.quiz_generator._invoke_backup_model", return_value="")
 @patch("app.chains.quiz_generator._get_chain")
@@ -71,6 +79,7 @@ def test_generate_quiz_questions_exact_count_guarantee(mock_get_chain, mock_back
         assert q["correct"] in ["a", "b", "c", "d"]
         assert len(q.get("hints", [])) >= 2
         assert q.get("micro_skill") is not None
+
 
 @patch("app.chains.quiz_generator._invoke_backup_model", return_value="")
 @patch("app.chains.quiz_generator._get_chain")
@@ -92,6 +101,7 @@ def test_uuid_sanitization_in_questions(mock_get_chain, mock_backup):
         assert raw_uuid not in q.get("explanation", "")
     # At least one question explicitly cites the course title
     assert any("Dasar TypeScript" in q["question"] for q in questions)
+
 
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

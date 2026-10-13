@@ -1,16 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Unit tests for Milestone 3 Auto-Ingestion & Knowledge Sync Endpoints."""
-
-import sys
-import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
-
-sys.path.insert(0, '.')
+import pytest
 
 from app.main import app
 
 client = TestClient(app)
+
 
 @patch("app.api.v1.endpoints.ingest.ingest_text_content")
 def test_ingest_single_lesson(mock_ingest):
@@ -40,6 +35,7 @@ def test_ingest_single_lesson(mock_ingest):
         course_slug="belajar-python"
     )
 
+
 @patch("app.api.v1.endpoints.ingest.bulk_ingest_course_lessons")
 def test_bulk_ingest_lessons(mock_bulk):
     """Test POST /api/v1/ingest/bulk for full course synchronization."""
@@ -60,6 +56,7 @@ def test_bulk_ingest_lessons(mock_bulk):
     assert data["total_lessons"] == 3
     assert data["total_chunks"] == 8
 
+
 @patch("app.api.v1.endpoints.ingest.delete_lesson_chunks")
 def test_delete_lesson_chunks(mock_delete):
     """Test DELETE /api/v1/ingest for lesson cascade deletion."""
@@ -74,6 +71,7 @@ def test_delete_lesson_chunks(mock_delete):
     assert data["status"] == "success"
     assert data["lesson_id"] == "les-1"
     mock_delete.assert_called_once_with(course_id="course-python-101", lesson_id="les-1")
+
 
 @patch("app.api.v1.endpoints.ingest.get_course_knowledge_status")
 def test_get_knowledge_status(mock_status):
@@ -92,6 +90,7 @@ def test_get_knowledge_status(mock_status):
     assert data["status"] == "success"
     assert data["total_chunks"] == 12
     assert data["is_synced"] is True
+
 
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

@@ -1,15 +1,15 @@
-﻿"""Unit tests for LangGraph Stateful Workflows (QA Graph & Quiz Graph)."""
-import pytest
+"""Unit tests for LangGraph Stateful Workflows (QA Graph & Quiz Graph)."""
 from unittest.mock import MagicMock, patch
 from langchain_core.messages import HumanMessage, AIMessage
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.db.checkpointer import get_checkpointer
-from app.graphs.qa_graph import create_qa_graph, run_qa_graph, retrieve_context_node, generate_answer_node
-from app.graphs.quiz_graph import create_quiz_graph, generate_quiz_node, generate_quiz_direct
+from app.graphs.qa_graph import create_qa_graph, retrieve_context_node, generate_answer_node
+from app.graphs.quiz_graph import create_quiz_graph, generate_quiz_node
 
 client = TestClient(app)
+
 
 def test_checkpointer_singleton():
     """Verify checkpointer initialization and singleton behavior."""
@@ -18,12 +18,14 @@ def test_checkpointer_singleton():
     assert cp1 is not None
     assert cp1 == cp2
 
+
 def test_qa_graph_creation():
     """Verify QA StateGraph compiles properly with expected nodes."""
     graph = create_qa_graph()
     assert graph is not None
     assert hasattr(graph, "invoke")
     assert hasattr(graph, "astream")
+
 
 def test_qa_retrieve_context_node():
     """Test RAG context retrieval node in QA StateGraph."""
@@ -39,6 +41,7 @@ def test_qa_retrieve_context_node():
         assert "rag_context" in result
         assert result["rag_context"] == "Konteks variabel Python"
 
+
 def test_qa_generate_answer_node():
     """Test answer generation node with mocked LLM."""
     state = {
@@ -50,18 +53,20 @@ def test_qa_generate_answer_node():
     }
     mock_llm = MagicMock()
     mock_llm.invoke.return_value = AIMessage(content="Halo! Ada yang bisa saya bantu?")
-    
+
     with patch("app.graphs.qa_graph.get_llm", return_value=mock_llm):
         result = generate_answer_node(state)
         assert "messages" in result
         assert len(result["messages"]) == 1
         assert "Halo! Ada yang bisa saya bantu?" in result["messages"][0].content
 
+
 def test_quiz_graph_creation():
     """Verify Quiz Generation StateGraph compiles with correct nodes."""
     graph = create_quiz_graph()
     assert graph is not None
     assert hasattr(graph, "invoke")
+
 
 def test_quiz_generate_node():
     """Test generation node in direct Quiz graph."""
@@ -91,15 +96,16 @@ def test_quiz_generate_node():
         assert res["status"] == "generated"
         assert len(res["questions"]) == 1
 
+
 def test_chat_streaming_sse_endpoint():
     """Test SSE token streaming endpoint /api/v1/chat/stream."""
     with patch("app.graphs.qa_graph.get_llm") as mock_get_llm:
         mock_llm = MagicMock()
-        
+
         async def mock_astream(*args, **kwargs):
             for token in ["Halo", " ", "Siswa", "!"]:
                 yield AIMessage(content=token)
-                
+
         mock_llm.astream = mock_astream
         mock_get_llm.return_value = mock_llm
 

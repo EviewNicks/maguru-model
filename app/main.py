@@ -7,17 +7,18 @@ from langserve.server import add_routes
 from app.core.config import settings
 from app.api.router import api_router
 from app.api.v1.endpoints import ingest
-from app.chains import (
-    create_qa_chatbot_chain,
-    create_explain_code_chain,
+from app.agents import (
+    create_co_teacher_chain,
+    create_greeting_chain,
+    create_code_explainer_chain,
     create_hint_generator_chain,
     create_quiz_feedback_chain,
-    create_greeting_chain,
-    create_quiz_generator_chain
+    create_quiz_engine_chain,
 )
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 def create_app() -> FastAPI:
     """Create and configure FastAPI application."""
@@ -53,7 +54,7 @@ def create_app() -> FastAPI:
 
     # Register API V1 Routers
     application.include_router(api_router, prefix="/api")
-    
+
     # Direct route for admin ingest for convenience (/admin/ingest)
     application.include_router(ingest.router)
 
@@ -62,23 +63,19 @@ def create_app() -> FastAPI:
 
     return application
 
-def _register_langserve_routes(app: FastAPI) -> None:
-    """Register all AI chains as LangServe SSE endpoints."""
-    qa_chain = create_qa_chatbot_chain()
-    explain_chain = create_explain_code_chain()
-    hint_chain = create_hint_generator_chain()
-    quiz_chain = create_quiz_feedback_chain()
-    greeting_chain = create_greeting_chain()
-    quiz_gen_chain = create_quiz_generator_chain()
 
-    add_routes(app, qa_chain, path="/chatbot")
-    add_routes(app, explain_chain, path="/explain-code")
-    add_routes(app, hint_chain, path="/hint")
-    add_routes(app, quiz_chain, path="/quiz-feedback")
-    add_routes(app, greeting_chain, path="/greeting")
-    add_routes(app, quiz_gen_chain, path="/generate-quiz")
+def _register_langserve_routes(app: FastAPI) -> None:
+    """Register all AI agents as LangServe SSE endpoints (routes unchanged)."""
+    add_routes(app, create_co_teacher_chain(), path="/chatbot")
+    add_routes(app, create_code_explainer_chain(), path="/explain-code")
+    add_routes(app, create_hint_generator_chain(), path="/hint")
+    add_routes(app, create_quiz_feedback_chain(), path="/quiz-feedback")
+    add_routes(app, create_greeting_chain(), path="/greeting")
+    add_routes(app, create_quiz_engine_chain(), path="/generate-quiz")
+
 
 app = create_app()
+
 
 @app.get("/")
 async def root():
@@ -100,6 +97,7 @@ async def root():
             "health": "/health"
         }
     }
+
 
 @app.get("/health")
 async def health():

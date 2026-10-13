@@ -4,9 +4,10 @@
 import sys
 sys.path.insert(0, '.')
 
+
 def test_quiz_schema_and_prompt():
     """Verify that quiz schemas and prompt template load cleanly."""
-    from app.schemas.quiz import QuizQuestionSchema, GenerateQuizRequestSchema, GenerateQuizResponseSchema
+    from app.schemas.quiz import GenerateQuizRequestSchema
     from app.chains.quiz_generator import create_quiz_generator_chain
 
     # Verify DTO creation
@@ -19,6 +20,7 @@ def test_quiz_schema_and_prompt():
     chain = create_quiz_generator_chain()
     assert chain is not None
     print("✅ Quiz generator schemas and chain initialization verified successfully!")
+
 
 if __name__ == "__main__":
     test_quiz_schema_and_prompt()
