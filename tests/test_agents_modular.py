@@ -33,7 +33,9 @@ from app.agents.co_teacher import (
 )
 from app.agents.co_teacher.graph import retrieve_context_node, generate_answer_node
 from app.agents.code_explainer import explain_code
+from app.agents.code_explainer.graph import get_explainer_graph
 from app.agents.hint_generator import generate_hint
+from app.agents.hint_generator.graph import get_hint_graph
 from app.agents.quiz_engine import (
     create_quiz_graph,
     generate_quiz_direct,
@@ -260,3 +262,21 @@ def test_should_have_quiz_feedback_chain():
             is_correct=True,
         )
         assert len(fb) > 0
+
+
+@pytest.mark.unit
+def test_should_have_code_explainer_and_hint_graphs():
+    """S4: Verify Code Explainer and Hint Generator LangGraph graphs."""
+    explainer_g = get_explainer_graph()
+    hint_g = get_hint_graph()
+
+    assert explainer_g is not None
+    assert hint_g is not None
+
+    with patch("app.agents.code_explainer.graph.explain_code", return_value="Penjelasan kode test"):
+        res = explainer_g.invoke({"code": "x = 10", "explanation": None})
+        assert res.get("explanation") == "Penjelasan kode test"
+
+    with patch("app.agents.hint_generator.graph.generate_hint", return_value="Petunjuk langkah 1"):
+        res_h = hint_g.invoke({"task": "Buat fungsi", "attempt": "def foo():", "level": 1, "hint": None})
+        assert res_h.get("hint") == "Petunjuk langkah 1"

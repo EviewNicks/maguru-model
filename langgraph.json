@@ -1,0 +1,11 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "co_teacher": "./app/agents/co_teacher/graph.py:get_qa_graph",
+    "code_explainer": "./app/agents/code_explainer/graph.py:get_explainer_graph",
+    "hint_generator": "./app/agents/hint_generator/graph.py:get_hint_graph",
+    "quiz_engine": "./app/agents/quiz_engine/graph.py:get_quiz_graph"
+  },
+  "env": "./.env",
+  "python_version": "3.12"
+}

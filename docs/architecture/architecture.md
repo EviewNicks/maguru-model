@@ -1,8 +1,8 @@
-﻿# 🏛️ Maguru AI Backend (`maguru-model`) Architecture Specification
+# 🏛️ Maguru AI Backend (`maguru-model`) Architecture Specification
 
 **Author:** Technical Architecture Lead & AI Engineer  
 **Status:** Approved Enterprise Architecture Specification  
-**Version:** 2.0.0 (Enterprise LangGraph & Multi-Model Pool)
+**Version:** 2.1.0 (Modular 4-Agent Architecture, LangGraph CLI & Supabase Persistence)
 
 ---
 
@@ -10,12 +10,14 @@
 
 `maguru-model` adalah backend microservice AI terdedikasi berbasis Python (FastAPI + LangChain / LangGraph / LangServe) yang menggerakkan seluruh kecerdasan buatan pada ekosistem platform **Maguru**, meliputi:
 
-1. **Stateful AI Co-Teacher Chatbot (`app/graphs/qa_graph.py`)**: Asisten belajar interaktif dengan *multi-turn memory persistence* (`thread_id`) dan *RAG context enrichment* via Server-Sent Events (SSE) streaming.
-2. **Pedagogical Code Explainer (`app/chains/explain_code.py`)**: Pembongkar potongan kode baris-per-baris dengan model mental dan pencegahan bug bagi pemula.
-3. **Progressive Scaffolding Hint Generator (`app/chains/hint_generator.py`)**: Asisten latihan adaptif dengan 3 tingkat petunjuk bertingkat tanpa membocorkan solusi akhir (*anti-spoon feeding*).
-4. **Automated Multi-Quiz Generator (`app/chains/quiz_generator.py` & `app/graphs/quiz_graph.py`)**: Generator kuis pilihan ganda otomatis dalam format JSON array terstruktur dari materi pelajaran.
-5. **Multi-Model Failover Resilience Pool (`app/core/llm.py`)**: Ketahanan tinggi terhadap *Rate-Limit (429)* atau *Endpoint Offline (404)* menggunakan rantai fallback native LangChain.
-6. **RAG Vector Knowledge Base (`app/services/rag_service.py` & `app/db/vector_store.py`)**: Ingestion dokumen dan similarity search menggunakan PostgreSQL `pgvector`.
+1. **Stateful AI Co-Teacher Agent (`app/agents/co_teacher/`)**: Asisten belajar interaktif dengan *multi-turn memory persistence* (`thread_id`), personalisasi salam murid (*greeting*), dan *RAG context enrichment* via Server-Sent Events (SSE) streaming.
+2. **Pedagogical Code Explainer Agent (`app/agents/code_explainer/`)**: Pembongkar potongan kode baris-per-baris dengan model mental dan visualisasi LangGraph.
+3. **Progressive Scaffolding Hint Generator Agent (`app/agents/hint_generator/`)**: Asisten latihan adaptif dengan 3 tingkat petunjuk bertingkat (*progressive hints*) berbasis LangGraph.
+4. **Automated Quiz Engine Agent (`app/agents/quiz_engine/`)**: Generator kuis pilihan ganda otomatis dan evaluator feedback jawaban murid.
+5. **LangGraph CLI & Studio Manifest (`langgraph.json`)**: Konfigurasi declarative multi-graph yang memungkinkan visualisasi diagram alir dan time-travel debugging via `langgraph dev`.
+6. **Supabase PostgreSQL Checkpointer (`app/db/checkpointer.py`)**: Persistensi state percakapan jangka panjang menggunakan `PostgresSaver` dengan *connection pooling* (`psycopg_pool`) dan graceful fallback ke `InMemorySaver`.
+7. **Multi-Model Failover Resilience Pool (`app/shared/llm.py`)**: Ketahanan tinggi terhadap *Rate-Limit (429)* atau *Endpoint Offline* menggunakan model pool OpenRouter.
+8. **RAG Vector Knowledge Base (`app/shared/rag_service.py` & `app/shared/vector_store.py`)**: Ingestion dokumen dan similarity search menggunakan PostgreSQL `pgvector`.
 
 ---
 
@@ -60,86 +62,67 @@ graph TD
 
 ```text
 maguru-model/
+├── langgraph.json               # LangGraph CLI & Studio Declarative Manifest
 ├── app/                         # Core Application Package
 │   ├── __init__.py
 │   ├── main.py                  # FastAPI Application Factory & Lifespan Handler
+│   │
+│   ├── agents/                  # Modular 4-Agent Domain Packages (Vertical Slices)
+│   │   ├── __init__.py          # Export of chain factories across all 4 agents
+│   │   ├── co_teacher/          # Co-Teacher Agent (StateGraph, RAG, Greeting, Stream)
+│   │   │   ├── __init__.py
+│   │   │   ├── graph.py         # StateGraph QA with thread_id persistence
+│   │   │   ├── greeting.py      # Personalized greeting generator
+│   │   │   └── entrypoint.py    # LangServe chain factory
+│   │   ├── code_explainer/      # Code Explainer Agent (StateGraph & LCEL)
+│   │   │   ├── __init__.py
+│   │   │   ├── graph.py         # StateGraph Code Explainer
+│   │   │   └── entrypoint.py    # Pedagogical explanation logic
+│   │   ├── hint_generator/      # Progressive Hint Agent (StateGraph & LCEL)
+│   │   │   ├── __init__.py
+│   │   │   ├── graph.py         # StateGraph Progressive Hint
+│   │   │   └── entrypoint.py    # 3-level hint logic
+│   │   └── quiz_engine/         # Quiz Engine Agent (StateGraph, Multi-Q, Feedback)
+│   │       ├── __init__.py
+│   │       ├── graph.py         # StateGraph Quiz Generator
+│   │       └── entrypoint.py    # Evaluation & feedback logic
+│   │
+│   ├── shared/                  # Common Cross-Cutting Infrastructure
+│   │   ├── __init__.py
+│   │   ├── config.py            # Global Settings proxy
+│   │   ├── llm.py               # OpenRouter Multi-Model Pool Provider
+│   │   ├── checkpointer.py      # Checkpointer singleton proxy
+│   │   ├── vector_store.py      # PGVector Store Provider
+│   │   └── rag_service.py       # RAG Retrieval Service proxy
 │   │
 │   ├── api/                     # REST API Routes & Endpoints
 │   │   ├── __init__.py
 │   │   ├── router.py            # Aggregated APIRouter
 │   │   └── v1/
-│   │       ├── __init__.py
 │   │       ├── chat.py          # POST /api/v1/chat/stream & POST /api/v1/chat
 │   │       ├── ingest.py        # POST /api/v1/ingest & POST /admin/ingest
 │   │       ├── quiz.py          # POST /api/v1/generate-quiz
 │   │       └── health.py        # GET /health & GET /
 │   │
-│   ├── core/                    # Core Infrastructure & LLM Singletons
-│   │   ├── __init__.py
-│   │   ├── config.py            # Pydantic Settings & model_pool property
-│   │   ├── logging.py           # Structured Logging Setup
-│   │   └── llm.py               # Multi-Model Pool Provider with with_fallbacks()
-│   │
 │   ├── db/                      # Persistence & Database Providers
 │   │   ├── __init__.py
-│   │   ├── checkpointer.py      # LangGraph Memory Persistence (InMemory / Postgres)
+│   │   ├── checkpointer.py      # Supabase PostgresSaver with ConnectionPool & fallback
 │   │   └── vector_store.py      # PGVector Provider (langchain-postgres)
 │   │
-│   ├── graphs/                  # Stateful LangGraph Workflows
-│   │   ├── __init__.py          # Exports: run_qa_graph, astream_qa_graph, generate_quiz_direct
-│   │   ├── qa_graph.py          # StateGraph Q&A Chatbot with thread_id persistence
-│   │   └── quiz_graph.py        # StateGraph Quiz Assessment Generator
-│   │
-│   ├── chains/                  # Deterministic LCEL Reasoning Pipelines
-│   │   ├── __init__.py
-│   │   ├── qa_chatbot.py        # LangServe-compatible Q&A Chatbot wrapper
-│   │   ├── explain_code.py      # Code Explainer Chain (.with_types)
-│   │   ├── hint_generator.py    # 3-Tier Progressive Hint Chain (.with_types)
-│   │   ├── quiz_generator.py    # Multi-Question Generator Chain (.with_types)
-│   │   ├── quiz_feedback.py     # Student Quiz Feedback Evaluator (.with_types)
-│   │   └── ai_greeting.py       # Personalized Student Greeting Chain (.with_types)
-│   │
 │   ├── prompts/                 # Externalized YAML Prompt Templates
-│   │   ├── qa_chatbot.yaml
-│   │   ├── explain_code.yaml
-│   │   ├── hint_generator.yaml
-│   │   ├── quiz_generator.yaml
-│   │   ├── quiz_feedback.yaml
-│   │   └── ai_greeting.yaml
-│   │
 │   ├── schemas/                 # Pydantic v2 Data Transfer Objects (DTO)
-│   │   ├── __init__.py
-│   │   ├── chat.py              # ChatInputSchema, ExplainCodeInputSchema, HintInputSchema, etc.
-│   │   ├── quiz.py              # GenerateQuizRequestSchema, GenerateQuizResponseSchema
-│   │   └── ingest.py            # IngestTextRequest, IngestResponse
-│   │
-│   └── services/                # Business Logic & Document Processing
-│       ├── __init__.py
-│       └── rag_service.py       # Document Chunking, Ingestion & Similarity Search
+│   ├── chains/                  # Backward Compatibility LCEL Shims
+│   └── graphs/                  # Backward Compatibility Graph Shims
 │
-├── notebooks/                   # Jupyter Notebooks for AI Model Exploration
-│   └── test_models.ipynb        # Real-time OpenRouter Free Models Benchmark & Tester
+├── tests/                       # Automated Test Suite (38 Tests, 100% Pass)
+│   ├── conftest.py
+│   ├── test_agents_modular.py   # MoSCoW Unit & Integration Tests for 4 Agents
+│   ├── test_checkpointer.py     # PostgresSaver Connection Pool & Fallback Tests
+│   ├── test_graphs.py           # LangGraph State & Streaming Tests
+│   └── ...
 │
-├── tests/                       # Automated Test Suite (18 Tests, 100% Pass)
-│   ├── conftest.py              # Pytest Fixtures & Mocks
-│   ├── test_app_architecture.py # Module Imports & Architecture Verification
-│   ├── test_graphs.py           # LangGraph State & Checkpointer Unit Tests
-│   ├── test_quiz_generator.py   # Quiz Schema & Prompt Unit Tests
-│   ├── test_unit_api.py         # FastAPI Endpoints Integration Tests
-│   └── test_unit_quiz_generator.py # JSON Parsing & Sanitization Tests
-│
-├── docs/                        # Technical Documentation
-│   ├── architecture.md          # Comprehensive System Architecture (This File)
-│   ├── architecture/            # Feature-Specific Architecture Documents
-│   │   ├── chatbot.md           # AI Co-Teacher Architecture Specification
-│   │   ├── explain-code.md      # Code Explainer Architecture Specification
-│   │   ├── hint-generator.md    # Progressive Hint Architecture Specification
-│   │   └── quiz-generator.md    # Quiz Generator Architecture Specification
-│   └── SERVER_RUNNING_GUIDE.md  # Server Startup & Troubleshooting Guide
-│
-├── server.py                    # Root Entrypoint Wrapper (Imports app.main)
-├── requirements.txt             # Python Dependencies (Modern & Non-deprecated)
-├── environment.yml              # Conda Environment Specification
+├── server.py                    # Root Entrypoint Wrapper
+├── requirements.txt             # Python Dependencies
 └── pytest.ini                   # Pytest Configuration
 ```
 

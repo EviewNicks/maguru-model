@@ -16,8 +16,20 @@ from app.agents import (
     create_quiz_engine_chain,
 )
 
+from contextlib import asynccontextmanager
+from app.db.checkpointer import close_checkpointer
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager to handle startup and graceful shutdown."""
+    logger.info("Starting up Maguru AI Backend...")
+    yield
+    logger.info("Shutting down Maguru AI Backend...")
+    close_checkpointer()
 
 
 def create_app() -> FastAPI:
@@ -27,7 +39,8 @@ def create_app() -> FastAPI:
         description="LangServe API & RAG Backend for Maguru Learning Platform",
         version=settings.VERSION,
         docs_url="/docs",
-        redoc_url="/redoc"
+        redoc_url="/redoc",
+        lifespan=lifespan,
     )
 
     # CORS Middleware Setup
