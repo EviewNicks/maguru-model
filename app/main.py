@@ -18,6 +18,7 @@ from app.agents import (
 
 from contextlib import asynccontextmanager
 from app.db.checkpointer import close_checkpointer
+from app.db.store import close_store
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Shutting down Maguru AI Backend...")
     close_checkpointer()
+    close_store()
 
 
 def create_app() -> FastAPI:

@@ -115,11 +115,8 @@ Saat ini, graf diuji melalui pemanggilan HTTP atau script test terminal.
 
 ---
 
-### Rekomendasi Tindakan Selanjutnya
-
-Langkah paling bernilai tinggi (*highest ROI*) dan paling aman tanpa risiko regresi API Next.js adalah:
-1. **Langkah 1:** Menyiapkan konfigurasi `langgraph.json` untuk mengaktifkan LangGraph Studio CLI.
-2. **Langkah 2:** Mengganti `MemorySaver` ke `PostgresSaver` di `app/db/checkpointer.py` agar percakapan student persisten di Supabase.
-3. **Langkah 3:** Menambahkan `Store` untuk menyimpan riwayat pemahaman murid (*student profile*).
-
-Bagaimana tanggapan Anda? Bagian mana dari prioritas di atas yang ingin kita jadwalkan untuk diimplementasikan terlebih dahulu?
+### Status Implementasi Terkini
+1. **Langkah 1 (Selesai ✅):** Menyiapkan konfigurasi `langgraph.json` dan 4 StateGraphs (`langgraph validate` lulus).
+2. **Langkah 2 (Selesai ✅):** Mengganti `MemorySaver` ke `PostgresSaver` di `app/db/checkpointer.py` dengan Supabase connection pooling.
+3. **Langkah 3 (Selesai ✅):** Menambahkan `PostgresStore` / `InMemoryStore` di `app/db/store.py` untuk rekam jejak memori jangka panjang (*student profile*) pada `co_teacher`.
+4. **Langkah 4 (Selanjutnya 🚀):** Implementasi Human-in-the-Loop (HITL) dengan `interrupt()` & `Command(resume=...)` untuk kurasi kuis oleh instruktur.
